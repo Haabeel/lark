@@ -10,19 +10,56 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  user: {
+    additionalFields: {
+      firstName: {
+        type: "string",
+        required: true,
+      },
+      lastName: {
+        type: "string",
+        required: false,
+      },
+      createdAt: {
+        type: "date",
+        defaultValue: () => {
+          return new Date();
+        },
+        required: true,
+      },
+    }
+  },
   socialProviders: {
     github: {
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      mapProfileToUser: (profile) => {
+        return {
+          firstName: profile.name.split(" ")[0],
+          lastName: profile.name.split(" ")[1],
+        }
+      },
     },
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      mapProfileToUser: (profile) => {
+        return {
+          firstName: profile.given_name,
+          lastName: profile.family_name,
+        };
+      }
     },
     microsoft: {
       clientId: process.env.MICROSOFT_CLIENT_ID!,
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
       requireSelectAccount: true,
+      mapProfileToUser: (profile) => {
+        return {
+          firstName: profile.givenName,
+          lastName: profile.surname,
+        };
+      }
     },
   },
   plugins: [

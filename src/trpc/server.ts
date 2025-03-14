@@ -16,7 +16,7 @@ console.log("server.ts loaded");
 const createContext = cache(async () => {
   const heads = new Headers(await headers());
   heads.set("x-trpc-source", "rsc");
-
+  heads.set("Authorization", `Bearer ${process.env.API_SECRET}`);
   return createTRPCContext({
     headers: heads,
   });

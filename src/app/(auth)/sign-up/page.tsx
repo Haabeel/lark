@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { FaGithub, FaGoogle, FaMicrosoft } from "react-icons/fa";
 import EmailVerification from "@/components/EmailVerification";
 import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
 type SignUpForm = z.infer<typeof signUpSchema>;
 const SignUp = () => {
@@ -49,12 +50,12 @@ const SignUp = () => {
         },
       );
       if (response.error) {
-        console.log("error", response.error);
+        toast.error(response.error.message);
       } else {
-        console.log("success");
+        toast.success("Signed up successfully");
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong...");
     } finally {
       setLoading(false);
     }
@@ -80,12 +81,12 @@ const SignUp = () => {
         },
       );
       if (response.error) {
-        console.log("error", response.error);
+        toast.error(response.error.message);
       } else {
-        console.log("success");
+        toast.success("Signed up successfully");
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong...");
     } finally {
       setLoading(false);
     }

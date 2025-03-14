@@ -10,7 +10,7 @@ import { Button } from "./ui/button";
 import { emailOtp } from "@/lib/auth-client";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter } from "next/navigation";
-
+import { toast } from "sonner";
 const EmailVerification = ({
   isEmailVerified,
   email,
@@ -30,6 +30,7 @@ const EmailVerification = ({
         email,
         type: "email-verification",
       });
+      toast.success("OTP sent successfully");
       setHasSent(true);
       if (hasMounted) {
         const endTime = Date.now() + 60000;
@@ -46,6 +47,7 @@ const EmailVerification = ({
       return;
     }
     try {
+      toast.loading("Verifying OTP...");
       const res = await emailOtp.verifyEmail(
         {
           email,
@@ -53,12 +55,13 @@ const EmailVerification = ({
         },
         {
           onSuccess: () => {
+            toast.success("Email verified successfully");
             router.push("/dashboard");
           },
         },
       );
       if (res.error) {
-        console.log(res.error);
+        toast.error(res.error.message);
       }
     } catch (error) {
       console.error("Error verifying OTP:", error);

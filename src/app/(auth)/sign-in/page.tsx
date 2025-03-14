@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import type z from "zod";
 import { FaGoogle, FaMicrosoft, FaGithub } from "react-icons/fa";
+import { toast } from "sonner";
 
 type SignInForm = z.infer<typeof signInSchema>;
 const SignIn = () => {
@@ -37,12 +38,12 @@ const SignIn = () => {
         provider: OAuthProvider,
       });
       if (response.error) {
-        console.log("error", response.error);
+        toast(response.error.message);
       } else {
-        console.log("success");
+        toast("signing in...");
       }
     } catch (error) {
-      console.log(error);
+      toast("Something went wrong...");
     } finally {
       setLoading(false);
     }
@@ -57,12 +58,12 @@ const SignIn = () => {
         password: data.password,
       });
       if (response.error) {
-        console.log("error", response.error);
+        toast.error(response.error.message);
       } else {
-        console.log("success");
+        toast.success("signing in...");
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong...");
     } finally {
       setLoading(false);
     }

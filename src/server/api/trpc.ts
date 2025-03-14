@@ -11,8 +11,6 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/server/db";
-import { ratelimit } from "@/lib/rate-limiter";
-import crypto from "crypto";
 /**
  * 1. CONTEXT
  *
@@ -98,6 +96,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 });
 
 const secureMiddleware = t.middleware(async ({ ctx, next }) => {
+  const { ratelimit } = await import("@/lib/rate-limiter");
   const headers = ctx.headers;
 
   const allowedOrigins = [process.env.NEXT_PUBLIC_WEBSITE_URL!];
@@ -122,7 +121,7 @@ const secureMiddleware = t.middleware(async ({ ctx, next }) => {
 
   const apiKey = headers.get("Authorization");
 
-  if (apiKey !== `Bearer ${process.env.API_KEY}`) {
+  if (apiKey !== `Bearer ${process.env.API_SECRET}`) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "Unauthorized",

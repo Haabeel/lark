@@ -3,7 +3,6 @@ import { type Session } from "better-auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { db } from "@/server/db";
-import { api } from "./trpc/server";
 
 export default async function middleware(req: NextRequest) {
   const authRoutes = ["/sign-up", "/sign-in"];
@@ -14,8 +13,6 @@ export default async function middleware(req: NextRequest) {
       cookie: req.headers.get("cookie") ?? "",
     },
   });
-  const sess = await api.auth.getSession();
-  console.log(sess);
   if (pathname === "/") return NextResponse.next();
   if (session.data && authRoutes.includes(pathname))
     return NextResponse.redirect(new URL("/", req.url));

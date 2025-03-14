@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth";
 import { createTRPCRouter, publicProcedure, secureProcedure } from "../trpc";
 import z from "zod";
-import { transporter } from "@/lib/node-mailer";
 import { TRPCError } from "@trpc/server";
 
 export const authRouter = createTRPCRouter({
@@ -18,6 +17,7 @@ export const authRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
+      const { transporter } = await import("@/lib/node-mailer");
       try {
         await transporter.sendMail({
           from: `Lark <${process.env.GMAIL_USER}>`,
