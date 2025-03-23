@@ -20,6 +20,10 @@ export const env = createEnv({
     GITHUB_CLIENT_ID: z.string(),
     GITHUB_CLIENT_SECRET: z.string(),
 
+    GITHUB_TOKEN: z.string(),
+
+    GEMINI_API_KEY: z.string(),
+
     API_SECRET: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -57,6 +61,10 @@ export const env = createEnv({
 
     NEXT_PUBLIC_UPSTASH_URL: process.env.NEXT_PUBLIC_UPSTASH_URL,
     NEXT_PUBLIC_UPSTASH_TOKEN: process.env.NEXT_PUBLIC_UPSTASH_TOKEN,
+
+    GITHUB_TOKEN: process.env.GITHUB_TOKEN,
+
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
 
     NEXT_PUBLIC_WEBSITE_URL: process.env.NEXT_PUBLIC_WEBSITE_URL,
     API_SECRET: process.env.API_SECRET,

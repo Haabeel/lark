@@ -73,6 +73,7 @@ const SignUp = () => {
             data.lastName !== ""
               ? data.firstName + " " + data.lastName
               : data.firstName,
+          firstName: data.firstName,
         },
         {
           onSuccess: () => {

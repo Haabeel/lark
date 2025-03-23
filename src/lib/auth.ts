@@ -7,27 +7,16 @@ export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
-  emailAndPassword: {
-    enabled: true,
-  },
   user: {
     additionalFields: {
       firstName: {
         type: "string",
         required: true,
       },
-      lastName: {
-        type: "string",
-        required: false,
-      },
-      createdAt: {
-        type: "date",
-        defaultValue: () => {
-          return new Date();
-        },
-        required: true,
-      },
-    }
+    },
+  },
+  emailAndPassword: {
+    enabled: true,
   },
   socialProviders: {
     github: {
@@ -37,7 +26,7 @@ export const auth = betterAuth({
         return {
           firstName: profile.name.split(" ")[0],
           lastName: profile.name.split(" ")[1],
-        }
+        };
       },
     },
     google: {
@@ -48,7 +37,7 @@ export const auth = betterAuth({
           firstName: profile.given_name,
           lastName: profile.family_name,
         };
-      }
+      },
     },
     microsoft: {
       clientId: process.env.MICROSOFT_CLIENT_ID!,
@@ -56,10 +45,10 @@ export const auth = betterAuth({
       requireSelectAccount: true,
       mapProfileToUser: (profile) => {
         return {
-          firstName: profile.givenName,
-          lastName: profile.surname,
+          firstName: profile.name.split(" ")[0],
+          lastName: profile.name.split(" ")[1],
         };
-      }
+      },
     },
   },
   plugins: [

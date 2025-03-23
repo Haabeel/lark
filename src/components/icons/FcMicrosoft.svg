@@ -1,0 +1,10 @@
+<svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Top Left Window -->
+  <rect x="0" y="32" width="214.6" height="214.6" fill="#F25022"/>
+  <!-- Top Right Window -->
+  <rect x="233.4" y="32" width="214.6" height="214.6" fill="#7FBA00"/>
+  <!-- Bottom Left Window -->
+  <rect x="0" y="265.4" width="214.6" height="214.6" fill="#00A4EF"/>
+  <!-- Bottom Right Window -->
+  <rect x="233.4" y="265.4" width="214.6" height="214.6" fill="#FFB900"/>
+</svg>

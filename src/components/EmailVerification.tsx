@@ -22,23 +22,32 @@ const EmailVerification = ({
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [hasMounted, setHasMounted] = useState(false);
   const [hasSent, setHasSent] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const onSendOTPSubmit = async () => {
     try {
       if (email == "" || secondsLeft > 0) return;
-      await emailOtp.sendVerificationOtp({
-        email,
-        type: "email-verification",
-      });
-      toast.success("OTP sent successfully");
-      setHasSent(true);
-      if (hasMounted) {
-        const endTime = Date.now() + 60000;
-        localStorage.setItem("otpCountdownEnd", endTime.toString());
-        setSecondsLeft(60);
-      }
+      setLoading(true);
+      await emailOtp
+        .sendVerificationOtp({
+          email,
+          type: "email-verification",
+        })
+        .then(() => {
+          toast.success("OTP sent successfully");
+          setHasSent(true);
+          if (hasMounted) {
+            const endTime = Date.now() + 60000;
+            localStorage.setItem("otpCountdownEnd", endTime.toString());
+            // setSecondsLeft(60);
+            setHasSent(true);
+          }
+        });
     } catch (error) {
       console.error("Error sending OTP:", error);
+      toast.error("Error sending OTP");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,7 +56,10 @@ const EmailVerification = ({
       return;
     }
     try {
-      toast.loading("Verifying OTP...");
+      setLoading(true);
+      toast.loading("Verifying OTP...", {
+        id: "loader",
+      });
       const res = await emailOtp.verifyEmail(
         {
           email,
@@ -57,6 +69,7 @@ const EmailVerification = ({
           onSuccess: () => {
             toast.success("Email verified successfully");
             router.push("/dashboard");
+            setLoading(false);
           },
         },
       );
@@ -65,6 +78,10 @@ const EmailVerification = ({
       }
     } catch (error) {
       console.error("Error verifying OTP:", error);
+      toast.error("Error verifying OTP");
+      setLoading(false);
+    } finally {
+      toast.dismiss("loader");
     }
   };
 
@@ -141,7 +158,9 @@ const EmailVerification = ({
       <Button
         type="button"
         onClick={onSendOTPSubmit}
-        disabled={!email || email == "" || !hasMounted || secondsLeft > 0}
+        disabled={
+          !email || email == "" || !hasMounted || secondsLeft > 0 || loading
+        }
       >
         {secondsLeft > 0 ? `Resend OTP in ${secondsLeft}s` : "Send OTP"}
       </Button>

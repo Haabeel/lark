@@ -11,6 +11,8 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/server/db";
+import next from "next";
+import { auth } from "@/lib/auth";
 /**
  * 1. CONTEXT
  *
@@ -135,6 +137,25 @@ const secureMiddleware = t.middleware(async ({ ctx, next }) => {
   });
 });
 
+const isAuthenticatedMiddleware = t.middleware(async ({ next, ctx }) => {
+  const user = await auth.api.getSession({
+    headers: ctx.headers,
+  });
+  console.log(user);
+  if (!user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in.",
+    });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      user,
+    },
+  });
+});
+
 /**
  * Public (unauthenticated) procedure
  *
@@ -144,3 +165,4 @@ const secureMiddleware = t.middleware(async ({ ctx, next }) => {
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
 export const secureProcedure = t.procedure.use(secureMiddleware);
+export const protectedProcedure = t.procedure.use(isAuthenticatedMiddleware);

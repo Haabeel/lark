@@ -1,9 +1,15 @@
 import "@/styles/globals.css";
 
 import { type Metadata } from "next";
+import { DM_Sans } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "@/components/ui/sonner";
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+});
 
 export const metadata: Metadata = {
   title: "Lark AI",
@@ -17,7 +23,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>
+      <body
+        className={`${dmSans.className} flex min-h-screen w-screen flex-col overflow-x-hidden bg-foundation-neutral-200`}
+      >
         <TRPCReactProvider>{children}</TRPCReactProvider>
         <Toaster />
       </body>
