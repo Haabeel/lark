@@ -5,24 +5,23 @@ import { useForm } from "react-hook-form";
 import type z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUp, signIn } from "@/lib/auth-client";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Label } from "@radix-ui/react-label";
-import { Input } from "@/components/ui/input";
-import { FaGithub, FaGoogle, FaMicrosoft } from "react-icons/fa";
-import EmailVerification from "@/components/EmailVerification";
-import { api } from "@/trpc/react";
 import { toast } from "sonner";
-
+import FormInputField from "@/components/shared/FormInputField";
+import SocialProviders from "@/components/shared/SocialProviders";
+import Link from "next/link";
+import Logo from "@/components/shared/Logo";
+import { LuMoveRight } from "react-icons/lu";
+import Image from "next/image";
+import signUpImage from "../../../../public/sign-in.png";
+import { Separator } from "@/components/ui/separator";
+import { useToggle } from "@/hooks/useToggle";
 type SignUpForm = z.infer<typeof signUpSchema>;
 const SignUp = () => {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useToggle(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useToggle(false);
   const form = useForm<SignUpForm>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -34,59 +33,25 @@ const SignUp = () => {
     },
   });
 
-  const socialSignIn = async (
-    OAuthProvider: "google" | "microsoft" | "github",
-  ) => {
-    setLoading(true);
-    try {
-      const response = await signIn.social(
-        {
-          provider: OAuthProvider,
-        },
-        {
-          onSuccess: () => {
-            window.location.href = "/";
-          },
-        },
-      );
-      if (response.error) {
-        toast.error(response.error.message);
-      } else {
-        toast.success("Signed up successfully");
-      }
-    } catch (error) {
-      toast.error("Something went wrong...");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const onSubmit = async (data: SignUpForm) => {
     setLoading(true);
 
     try {
-      const response = await signUp.email(
-        {
-          email: data.email,
-          password: data.password,
-          name:
-            data.lastName !== ""
-              ? data.firstName + " " + data.lastName
-              : data.firstName,
-          firstName: data.firstName,
-        },
-        {
-          onSuccess: () => {
-            window.location.href = "/sign-up/verification";
-          },
-        },
-      );
+      const response = await signUp.email({
+        email: data.email,
+        password: data.password,
+        name:
+          data.lastName !== ""
+            ? data.firstName + " " + data.lastName
+            : data.firstName,
+        firstName: data.firstName,
+      });
       if (response.error) {
         toast.error(response.error.message);
       } else {
         toast.success("Signed up successfully");
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong...");
     } finally {
       setLoading(false);
@@ -94,122 +59,95 @@ const SignUp = () => {
   };
 
   return (
-    <div className="mx-auto mt-10 rounded-lg border p-6 shadow-lg">
-      <h2 className="text-center text-2xl font-semibold">Create an Account</h2>
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* First Name */}
-          <FormField
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <Label>First Name</Label>
-                <FormControl>
-                  <Input placeholder="John" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Last Name */}
-          <FormField
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <Label>Last Name</Label>
-                <FormControl>
-                  <Input placeholder="Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Email */}
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <Label>Email</Label>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="john@example.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Password */}
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <Label>Password</Label>
-                <FormControl>
-                  <Input type="password" placeholder="********" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Confirm Password */}
-          <FormField
-            control={form.control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <Label>Confirm Password</Label>
-                <FormControl>
-                  <Input type="password" placeholder="********" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Submit Button */}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Signing up..." : "Sign Up"}
-          </Button>
-          <div className={`flex w-full gap-5`}>
-            <Button
-              type="button"
-              className={`flex w-full items-center justify-around`}
-              onClick={() => socialSignIn("google")}
+    <main className="flex h-full w-full items-center justify-center overflow-y-auto p-3 sm:h-screen md:overflow-hidden">
+      <div className="flex h-full w-full flex-col items-center justify-center gap-5 text-foundation-blue-900 sm:gap-0">
+        <div className="flex w-full items-center justify-between px-2 py-2 sm:px-8 sm:py-3">
+          <Link href={"/"}>
+            <Logo className="h-5 w-auto sm:h-8" />
+          </Link>
+          <Link
+            href={"/sign-in"}
+            className="flex items-center justify-between gap-2 text-[12px] hover:underline sm:text-sm md:text-xs"
+          >
+            <p>Already have an Account?</p>
+            <LuMoveRight className="auto h-5" />
+          </Link>
+        </div>
+        <div className="flex w-full flex-1 flex-col items-center justify-center rounded-lg sm:max-w-min">
+          <h1 className="w-full text-xl font-semibold">Get Started</h1>
+          <p className="mb-10 w-full text-neutral-500">
+            Welcome to Lark - Let's create your account.
+          </p>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex w-full flex-col items-center gap-2"
             >
-              <FaGoogle />
-              <p>Sign in with Google</p>
-            </Button>
-            <Button
-              type="button"
-              className={`flex w-full items-center justify-around`}
-              onClick={() => socialSignIn("microsoft")}
-            >
-              <FaMicrosoft />
-              <p>Sign in with Microsoft</p>
-            </Button>
-            <Button
-              type="button"
-              className={`flex w-full items-center justify-around`}
-              onClick={() => socialSignIn("github")}
-            >
-              <FaGithub />
-              <p>Sign in with Github</p>
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+              <div className="w-full flex-col items-center gap-3 sm:flex">
+                <FormInputField
+                  control={form.control}
+                  label="First Name"
+                  name="firstName"
+                  placeholder="John"
+                />
+                <FormInputField
+                  control={form.control}
+                  label="Last Name"
+                  name="lastName"
+                  placeholder="Doe"
+                />
+              </div>
+              <FormInputField
+                control={form.control}
+                label="Email"
+                name="email"
+                placeholder="john@example.com"
+                type="email"
+              />
+              <FormInputField
+                control={form.control}
+                label="Password"
+                name="password"
+                placeholder="********"
+                type={showPassword ? "text" : "password"}
+                onToggle={setShowPassword}
+                showPassword={showPassword}
+              />
+              <FormInputField
+                control={form.control}
+                label="Confirm Password"
+                name="confirmPassword"
+                placeholder="********"
+                type={showConfirmPassword ? "text" : "password"}
+                showPassword={showConfirmPassword}
+                onToggle={setShowConfirmPassword}
+              />
+              <Button
+                type="submit"
+                className="mt-2 w-full bg-brand-blue-800"
+                disabled={loading}
+              >
+                {loading ? "Signing up..." : "Sign Up"}
+              </Button>
+              <div className="flex w-full items-center gap-2 text-neutral-500">
+                <Separator className="shrink" />
+                <p className="mx-2 shrink-0 text-center">Or</p>
+                <Separator className="shrink" />
+              </div>
+
+              <div className={`flex w-full justify-between gap-3`}>
+                <SocialProviders type="sign up" />
+              </div>
+            </form>
+          </Form>
+        </div>
+      </div>
+      <Image
+        src={signUpImage}
+        alt="Sign Up"
+        className="hidden h-full w-auto rounded-md lg:block"
+      />
+    </main>
   );
 };
 

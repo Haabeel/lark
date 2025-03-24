@@ -11,6 +11,12 @@ import { toast } from "sonner";
 import FormInputField from "@/components/shared/FormInputField";
 import { Separator } from "@/components/ui/separator";
 import SocialProviders from "@/components/shared/SocialProviders";
+import Image from "next/image";
+import signInImage from "../../../../public/sign-in.png";
+import Logo from "@/components/shared/Logo";
+import Link from "next/link";
+import { ArrowRightIcon } from "lucide-react";
+import { LuMoveRight } from "react-icons/lu";
 
 type SignInForm = z.infer<typeof signInSchema>;
 const SignIn = () => {
@@ -22,26 +28,6 @@ const SignIn = () => {
       password: "",
     },
   });
-
-  const socialSignIn = async (
-    OAuthProvider: "google" | "microsoft" | "github",
-  ) => {
-    setLoading(true);
-    try {
-      const response = await signIn.social({
-        provider: OAuthProvider,
-      });
-      if (response.error) {
-        toast(response.error.message);
-      } else {
-        toast("signing in...");
-      }
-    } catch {
-      toast("Something went wrong...");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const onSubmit = async (data: SignInForm) => {
     setLoading(true);
@@ -62,17 +48,36 @@ const SignIn = () => {
       setLoading(false);
     }
   };
+
   return (
     <main
-      className={`flex h-full w-full flex-1 flex-col items-center justify-center`}
+      className={`sm:h-screen flex h-screen w-full items-center justify-center overflow-hidden p-3 md:overflow-hidden`}
     >
       <div
-        className={`flex h-full w-full items-center justify-center text-foundation-blue-900`}
+        className={`flex h-full w-full gap-5 sm:gap-0 flex-col items-center justify-center text-foundation-blue-900`}
       >
-        <div className="max-w-min flex-1 rounded-lg border p-6 shadow-lg">
-          <h2 className="text-center text-2xl font-semibold">Sign In</h2>
+        <div className={`flex w-full items-center justify-between px-2 py-2 sm:px-8 sm:py-3`}>
+          <Link href={"/"}>
+            <Logo className="h-5 sm:h-8 w-auto" />
+          </Link>
+          <Link
+            href={"/sign-up"}
+            className="flex items-center justify-between gap-2 hover:underline text-[12px] sm:text-sm md:text-xs"
+          >
+            <p>Create an account</p>
+            <LuMoveRight className="h-5 w-auto" />
+          </Link>
+        </div>
+        <div className="flex w-full sm:max-w-min flex-1 flex-col items-center sm:justify-center rounded-lg">
+          <h1 className="w-full text-xl font-semibold">Welcome Back to Lark</h1>
+          <p className="sm:mb-10 mb-12 w-full text-neutral-500">
+            Enter your email and password to continue.
+          </p>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex w-full flex-col items-center gap-2"
+            >
               <FormInputField
                 control={form.control}
                 name="email"
@@ -86,6 +91,9 @@ const SignIn = () => {
                 placeholder="********"
                 type="password"
               />
+              <p className="w-full text-end text-xs text-black">
+                Forgot Password
+              </p>
               <Button
                 type="submit"
                 className="w-full bg-brand-blue-800"
@@ -99,14 +107,19 @@ const SignIn = () => {
                 <Separator className="shrink" />
               </div>
               <div
-                className={`flex w-full flex-col justify-between gap-3 md:flex-row`}
+                className={`flex w-full justify-between gap-3`}
               >
-                <SocialProviders socialSignIn={socialSignIn} />
+                <SocialProviders type="sign in" />
               </div>
             </form>
           </Form>
         </div>
       </div>
+      <Image
+        src={signInImage}
+        alt="Sign in"
+        className={`h-full w-auto rounded-md hidden lg:block`}
+      />
     </main>
   );
 };

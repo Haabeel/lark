@@ -3,9 +3,11 @@ import { FcGoogle } from "react-icons/fc";
 import FcMicrosoft from "@/components/icons/FcMicrosoft.svg";
 import { FaGithub } from "react-icons/fa";
 import { Button } from "../ui/button";
+import { signIn } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 interface Props {
-  socialSignIn: (OAuthProvider: "google" | "microsoft" | "github") => void;
+  type: "sign in" | "sign up";
 }
 
 interface SocialProvider {
@@ -28,7 +30,22 @@ const socialProviders: SocialProvider[] = [
   },
 ];
 
-const SocialProviders = ({ socialSignIn }: Props) => {
+const SocialProviders = ({ type }: Props) => {
+  const handleSocialSignIn = async (
+    provider: "google" | "microsoft" | "github",
+  ) => {
+    try {
+      const response = await signIn.social({ provider });
+
+      if (response?.error) {
+        toast.error(response.error.message);
+      } else {
+        window.location.href = "/"; // Client-side redirect
+      }
+    } catch {
+      toast.error("Authentication failed");
+    }
+  };
   return (
     <>
       {socialProviders.map(({ provider, Icon }) => (
@@ -36,10 +53,12 @@ const SocialProviders = ({ socialSignIn }: Props) => {
           key={provider}
           type="button"
           className={`flex w-full items-center justify-center gap-3 bg-white text-brand-blue-900 hover:bg-slate-50`}
-          onClick={() => socialSignIn(provider)}
+          onClick={() => handleSocialSignIn(provider)}
         >
           <Icon />
-          <p>{`Sign In with ${provider.at(0)?.toUpperCase() + provider.substring(1)}`}</p>
+          <p
+            className={`hidden sm:block`}
+          >{`${provider.at(0)?.toUpperCase() + provider.substring(1)}`}</p>
         </Button>
       ))}
     </>
