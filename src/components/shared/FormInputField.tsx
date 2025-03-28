@@ -57,9 +57,8 @@ const FormInputField = <T extends FieldValues>({
                 className="h-10 border-0 pr-10 focus-visible:ring-0 focus-visible:ring-offset-0"
               />
               {showPassword !== undefined && onToggle && (
-                <Button
-                  type="button"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-transparent text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground"
+                <div
+                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-transparent px-3 text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground"
                   onClick={onToggle}
                 >
                   {showPassword ? (
@@ -67,7 +66,7 @@ const FormInputField = <T extends FieldValues>({
                   ) : (
                     <Eye className="h-4 w-auto" />
                   )}
-                </Button>
+                </div>
               )}
             </div>
           </FormControl>

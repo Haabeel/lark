@@ -39,7 +39,7 @@ const EmailVerification = ({
           if (hasMounted) {
             const endTime = Date.now() + 60000;
             localStorage.setItem("otpCountdownEnd", endTime.toString());
-            // setSecondsLeft(60);
+            setSecondsLeft(60);
             setHasSent(true);
           }
         });
@@ -138,26 +138,28 @@ const EmailVerification = ({
   }, []);
 
   return (
-    <div>
+    <div className="flex w-full flex-col items-center gap-2">
       <InputOTP
         maxLength={6}
         pattern={REGEXP_ONLY_DIGITS}
         onChange={(value) => SetOtp(value)}
         onComplete={verifyOTP}
+        className="w-full"
       >
-        <InputOTPGroup>
-          <InputOTPSlot index={0} />
-          <InputOTPSlot index={1} />
-          <InputOTPSlot index={2} />
+        <InputOTPGroup className="w-full">
+          <InputOTPSlot index={0} className="h-9 w-9 sm:h-10 sm:w-10" />
+          <InputOTPSlot index={1} className="h-9 w-9 sm:h-10 sm:w-10" />
+          <InputOTPSlot index={2} className="h-9 w-9 sm:h-10 sm:w-10" />
           <InputOTPSeparator />
-          <InputOTPSlot index={3} />
-          <InputOTPSlot index={4} />
-          <InputOTPSlot index={5} />
+          <InputOTPSlot index={3} className="h-9 w-9 sm:h-10 sm:w-10" />
+          <InputOTPSlot index={4} className="h-9 w-9 sm:h-10 sm:w-10" />
+          <InputOTPSlot index={5} className="h-9 w-9 sm:h-10 sm:w-10" />
         </InputOTPGroup>
       </InputOTP>
       <Button
         type="button"
         onClick={onSendOTPSubmit}
+        className="w-full bg-brand-blue-800"
         disabled={
           !email || email == "" || !hasMounted || secondsLeft > 0 || loading
         }

@@ -17,11 +17,13 @@ import Image from "next/image";
 import signUpImage from "../../../../public/sign-in.png";
 import { Separator } from "@/components/ui/separator";
 import { useToggle } from "@/hooks/useToggle";
+import { useRouter } from "next/navigation";
 type SignUpForm = z.infer<typeof signUpSchema>;
 const SignUp = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useToggle(false);
   const [showConfirmPassword, setShowConfirmPassword] = useToggle(false);
+  const router = useRouter();
   const form = useForm<SignUpForm>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -49,6 +51,7 @@ const SignUp = () => {
       if (response.error) {
         toast.error(response.error.message);
       } else {
+        router.push("/sign-up/verification");
         toast.success("Signed up successfully");
       }
     } catch {
@@ -76,7 +79,7 @@ const SignUp = () => {
         <div className="flex w-full flex-1 flex-col items-center justify-center rounded-lg sm:max-w-min">
           <h1 className="w-full text-xl font-semibold">Get Started</h1>
           <p className="mb-10 w-full text-neutral-500">
-            Welcome to Lark - Let's create your account.
+            Welcome to Lark - Let&apos;s create your account.
           </p>
           <Form {...form}>
             <form

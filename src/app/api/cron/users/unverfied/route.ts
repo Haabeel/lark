@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 
-export const GET = async (request: Request) => {
+export const POST = async (request: Request) => {
   const authHeader = request.headers.get("Authorization");
   if (authHeader !== `Bearer ${process.env.API_SECRET!}`) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -20,17 +20,18 @@ export const GET = async (request: Request) => {
         accounts: true,
       },
     });
-
+    // console.log(unverifiedUsers);
     let deletedUsers = 0;
     let deletedCredentialAccounts = 0;
     for (const user of unverifiedUsers) {
       const hasSocialAccounts = user.accounts.some(
-        (account) => account.providerId !== "credentials",
+        (account) => account.providerId !== "credential",
       );
 
       if (hasSocialAccounts) {
+        console.log("social");
         const credentialAccount = user.accounts.find(
-          (account) => account.providerId === "credentials",
+          (account) => account.providerId === "credential",
         );
 
         if (credentialAccount) {
@@ -42,6 +43,7 @@ export const GET = async (request: Request) => {
           deletedCredentialAccounts++;
         }
       } else {
+        console.log("running");
         await db.user.delete({
           where: {
             id: user.id,
@@ -50,6 +52,7 @@ export const GET = async (request: Request) => {
         deletedUsers++;
       }
     }
+
     return NextResponse.json({
       message: `Deleted ${deletedUsers} unverified users and ${deletedCredentialAccounts} credential accounts`,
     });
