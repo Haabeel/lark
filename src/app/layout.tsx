@@ -22,7 +22,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
         className={`${dmSans.className} flex min-h-screen w-screen flex-col overflow-x-hidden bg-foundation-neutral-200`}
       >

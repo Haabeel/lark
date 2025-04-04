@@ -75,15 +75,16 @@ model Verification {
 }
 
 model Project {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  creatorId   String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  githubUrl   String
-  deletedAt   DateTime?
-  creator     User      @relation(fields: [creatorId], references: [id], name: "CreatedProjects", onDelete: Cascade)
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+  backgroundColor String
+  creatorId       String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  githubUrl       String
+  deletedAt       DateTime?
+  creator         User      @relation(fields: [creatorId], references: [id], name: "CreatedProjects", onDelete: Cascade)
 
   members Member[]
   Commit  Commit[]

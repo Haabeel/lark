@@ -2,6 +2,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { pollCommits } from "@/lib/github";
+import { createBackgroundHue } from "@/lib/utils";
 
 export const projectRouter = createTRPCRouter({
   createProject: protectedProcedure
@@ -18,12 +19,14 @@ export const projectRouter = createTRPCRouter({
         const normalizedGithubUrl = input.githubUrl.endsWith("/")
           ? input.githubUrl.slice(0, -1)
           : input.githubUrl;
+        const backgroundColor = createBackgroundHue();
         const project = await ctx.db.project.create({
           data: {
             githubUrl: normalizedGithubUrl,
             name: input.name,
             description: input.description,
             creatorId: ctx.user.user.id,
+            backgroundColor,
             members: {
               create: {
                 userId: ctx.user.user.id,
@@ -42,4 +45,16 @@ export const projectRouter = createTRPCRouter({
         });
       }
     }),
+  getProjects: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.project.findMany({
+      where: {
+        members: {
+          some: {
+            userId: ctx.user.user.id,
+          },
+        },
+        deletedAt: null,
+      },
+    });
+  }),
 });

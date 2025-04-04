@@ -40,7 +40,7 @@ const SocialProviders = ({ type }: Props) => {
       if (response?.error) {
         toast.error(response.error.message);
       } else {
-        window.location.href = "/"; // Client-side redirect
+        console.log("WORKED", response.data);
       }
     } catch {
       toast.error("Authentication failed");
