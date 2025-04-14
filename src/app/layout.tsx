@@ -5,6 +5,8 @@ import { DM_Sans } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+import StyledComponentsRegistry from "@/lib/StyledComponentsRegistry";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -22,11 +24,20 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <body
-        className={`${dmSans.className} flex min-h-screen w-screen flex-col overflow-x-hidden bg-foundation-neutral-200`}
+        className={`${dmSans.className} flex min-h-screen w-screen flex-col overflow-x-hidden bg-foundation-neutral-200 dark:bg-foundation-blue-800 dark:text-foundation-neutral-200`}
       >
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </TRPCReactProvider>
         <Toaster />
       </body>
     </html>

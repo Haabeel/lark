@@ -6,6 +6,9 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
+  compiler: {
+    styledComponents: true,
+  },
   experimental: {
     turbo: {
       rules: {

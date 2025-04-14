@@ -6,6 +6,7 @@ import { initials } from "@/lib/utils";
 import { useDashboard } from "@/providers/DashboardProvider";
 import React, { useMemo } from "react";
 import AppSidebar from "./AppSidebar";
+import Navbar from "./Navbar";
 
 type Props = {
   children: React.ReactNode;
@@ -16,29 +17,26 @@ const SidebarContent = ({ children }: Props) => {
   const [hasFetchingError, setHasFetchingError] = React.useState(false);
   if (!dashboard) return null;
 
-  const { session } = dashboard;
+  const { session, project, projects, selectedProject, setSelectedProject } =
+    dashboard;
   const name = initials(session?.user.name ?? "");
   return (
-    <SidebarProvider className="h-screen overflow-hidden bg-white p-2">
-      <AppSidebar />
-      <main className="flex h-full w-full flex-col">
-        <div className="flex items-center gap-2 border-b-2 border-border p-2 pt-1">
-          <div className="ml-auto"></div>
-          <Avatar>
-            {session?.user.image && hasFetchingError ? (
-              <AvatarImage
-                src={session?.user.image}
-                key={session.user.id}
-                onError={() => setHasFetchingError(true)}
-              />
-            ) : (
-              <AvatarFallback className="bg-foundation-purple-300">
-                {name}
-              </AvatarFallback>
-            )}
-          </Avatar>
+    <SidebarProvider className="overflow-hidden dark:bg-foundation-blue-900 dark:text-neutral-100">
+      <AppSidebar
+        projects={projects}
+        selectedProject={selectedProject}
+        setSelectedProject={setSelectedProject}
+      />
+      <main className="my-2 mr-2 flex h-full w-full flex-col gap-2">
+        <Navbar
+          name={name}
+          hasFetchingError={hasFetchingError}
+          session={session}
+          setHasFetchingError={setHasFetchingError}
+        />
+        <div className="h-[calc(100vh-5rem)] overflow-y-auto rounded-md border border-sidebar-border bg-sidebar p-4 shadow dark:border-none dark:bg-foundation-blue-700">
+          {children}
         </div>
-        <div className="flex-1 overflow-y-auto">{children}</div>
       </main>
     </SidebarProvider>
   );

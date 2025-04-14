@@ -48,17 +48,17 @@ const FormInputField = <T extends FieldValues>({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <div
-              className={`group relative h-10 rounded-md border border-input transition-colors duration-200 focus-within:border-primary`}
+              className={`group relative h-10 rounded-md border border-input transition-colors duration-200 focus-within:border-primary dark:text-neutral-50`}
             >
               <Input
                 type={type}
                 placeholder={placeholder}
                 {...field}
-                className="h-10 border-0 pr-10 focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="h-10 border-0 pr-10 focus-visible:ring-0 focus-visible:ring-offset-0 dark:placeholder:text-neutral-200"
               />
               {showPassword !== undefined && onToggle && (
                 <div
-                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-transparent px-3 text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer bg-transparent px-3 text-muted-foreground text-neutral-50 shadow-none hover:bg-transparent hover:text-foreground dark:hover:text-neutral-200"
                   onClick={onToggle}
                 >
                   {showPassword ? (

@@ -63,7 +63,7 @@ const SignUp = () => {
 
   return (
     <main className="flex h-full w-full items-center justify-center overflow-y-auto p-3 sm:h-screen md:overflow-hidden">
-      <div className="flex h-full w-full flex-col items-center justify-center gap-5 text-foundation-blue-900 sm:gap-0">
+      <div className="flex h-full w-full flex-col items-center justify-center gap-5 text-foundation-blue-900 dark:text-neutral-100 sm:gap-0">
         <div className="flex w-full items-center justify-between px-2 py-2 sm:px-8 sm:py-3">
           <Link href={"/"}>
             <Logo className="h-5 w-auto sm:h-8" />
@@ -78,7 +78,7 @@ const SignUp = () => {
         </div>
         <div className="flex w-full flex-1 flex-col items-center justify-center rounded-lg sm:max-w-min">
           <h1 className="w-full text-xl font-semibold">Get Started</h1>
-          <p className="mb-10 w-full text-neutral-500">
+          <p className="mb-10 w-full text-neutral-500 dark:text-neutral-50">
             Welcome to Lark - Let&apos;s create your account.
           </p>
           <Form {...form}>
@@ -127,12 +127,12 @@ const SignUp = () => {
               />
               <Button
                 type="submit"
-                className="mt-2 w-full bg-brand-blue-800"
+                className="mt-2 w-full bg-brand-blue-800 dark:bg-brand-blue-400"
                 disabled={loading}
               >
                 {loading ? "Signing up..." : "Sign Up"}
               </Button>
-              <div className="flex w-full items-center gap-2 text-neutral-500">
+              <div className="flex w-full items-center gap-2 text-neutral-500 dark:text-neutral-100">
                 <Separator className="shrink" />
                 <p className="mx-2 shrink-0 text-center">Or</p>
                 <Separator className="shrink" />

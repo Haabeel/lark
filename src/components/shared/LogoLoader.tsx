@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled from "@emotion/styled";
 
 const Loader = () => {
   return (
@@ -32,6 +32,7 @@ const TextWrapper = styled.div`
 
   .loader span:nth-child(2) {
     color: #48225f;
+    background: red
     -webkit-text-stroke: 1px #48225f;
     animation: uiverse723 3s ease-in-out infinite;
   }

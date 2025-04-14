@@ -5,7 +5,8 @@ import useProject from "@/hooks/useProject";
 import { type Session } from "@/lib/auth";
 import { api } from "@/trpc/react";
 import { type Project } from "@prisma/client";
-import React, { type Dispatch, type SetStateAction } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect, type Dispatch, type SetStateAction } from "react";
 
 interface Props {
   children: React.ReactNode;
@@ -23,6 +24,8 @@ const dashboardContext = React.createContext<ContextType | null>(null);
 export const useDashboard = () => React.useContext(dashboardContext);
 
 const DashboardProvider = ({ children }: Props) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const { data: session, isLoading: isSessionLoading } =
     api.auth.getSession.useQuery();
   const {
@@ -32,14 +35,19 @@ const DashboardProvider = ({ children }: Props) => {
     setSelectedProject,
     metadata: { isLoading: isProjectsLoading, isError },
   } = useProject();
-  const isLoading = isSessionLoading || isProjectsLoading;
 
+  const isLoading = isSessionLoading || isProjectsLoading;
+  useEffect(() => {
+    if (!isLoading && !projects && pathname !== "/create-project") {
+      router.push("/create-project");
+    }
+  }, [isLoading, projects, pathname, router]);
   if (isError) {
     return <div>Something went wrong...</div>;
   }
   if (isLoading) {
     return (
-      <div className="max-w-screen flex h-screen max-h-screen w-screen items-center justify-center overflow-hidden bg-white">
+      <div className="max-w-screen flex h-screen max-h-screen w-screen items-center justify-center overflow-hidden bg-white dark:bg-foundation-blue-900">
         <LogoLoader />
       </div>
     );
