@@ -7,6 +7,7 @@ import { useDashboard } from "@/providers/DashboardProvider";
 import React, { useMemo } from "react";
 import AppSidebar from "./AppSidebar";
 import Navbar from "./Navbar";
+import ProjectPlaceholder from "./ProjectPlaceholder";
 
 type Props = {
   children: React.ReactNode;
@@ -35,7 +36,11 @@ const SidebarContent = ({ children }: Props) => {
           setHasFetchingError={setHasFetchingError}
         />
         <div className="h-[calc(100vh-5rem)] overflow-y-auto rounded-md border border-sidebar-border bg-sidebar p-4 shadow dark:border-none dark:bg-foundation-blue-700">
-          {children}
+          {!projects || projects.length === 0 ? (
+            <ProjectPlaceholder />
+          ) : (
+            children
+          )}
         </div>
       </main>
     </SidebarProvider>
