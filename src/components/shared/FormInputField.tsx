@@ -19,13 +19,11 @@ interface FormInputFieldBaseProps<T extends FieldValues> {
   label: string;
   placeholder: string;
   type?: string;
-  showPassword?: boolean;
-  onToggle?: () => void;
 }
 
 type ToggleProps =
-  | { onToggle: () => void; showPassword: boolean }
-  | { onToggle?: never; showPassword?: never };
+  | { showPassword: boolean; onToggle: () => void; icon?: never }
+  | { showPassword?: never; onToggle?: never; icon?: React.ReactNode };
 
 type FormInputFieldProps<T extends FieldValues> = FormInputFieldBaseProps<T> &
   ToggleProps;
@@ -38,6 +36,7 @@ const FormInputField = <T extends FieldValues>({
   type = "text",
   showPassword,
   onToggle,
+  icon,
 }: FormInputFieldProps<T>) => {
   return (
     <FormField
@@ -56,7 +55,7 @@ const FormInputField = <T extends FieldValues>({
                 {...field}
                 className="h-10 border-0 pr-10 focus-visible:ring-0 focus-visible:ring-offset-0 dark:placeholder:text-neutral-200"
               />
-              {showPassword !== undefined && onToggle && (
+              {showPassword !== undefined && onToggle ? (
                 <div
                   className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer bg-transparent px-3 text-muted-foreground text-neutral-50 shadow-none hover:bg-transparent hover:text-foreground dark:hover:text-neutral-200"
                   onClick={onToggle}
@@ -67,7 +66,11 @@ const FormInputField = <T extends FieldValues>({
                     <Eye className="h-4 w-auto" />
                   )}
                 </div>
-              )}
+              ) : icon ? (
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 px-3 text-muted-foreground text-neutral-50 dark:text-neutral-200">
+                  {icon}
+                </div>
+              ) : null}
             </div>
           </FormControl>
           <FormMessage />

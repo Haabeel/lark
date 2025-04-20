@@ -1,11 +1,16 @@
 import Link from "next/link";
 import React from "react";
-import CreateProjectImage from "../icons/create-project.svg";
+import Image from "next/image";
 
 const ProjectPlaceholder = () => {
   return (
     <div className="flex h-full w-full items-center justify-center text-2xl">
-      <CreateProjectImage />
+      <Image
+        src={"/vectors/create-project.svg"}
+        height={10}
+        width={10}
+        alt="create project"
+      />
       <div>
         <h1 className={`text-bold text-2xl`}>No Project Selected.</h1>
 

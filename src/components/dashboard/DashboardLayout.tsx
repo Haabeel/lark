@@ -8,6 +8,7 @@ import React, { useMemo } from "react";
 import AppSidebar from "./AppSidebar";
 import Navbar from "./Navbar";
 import ProjectPlaceholder from "./ProjectPlaceholder";
+import { usePathname } from "next/navigation";
 
 type Props = {
   children: React.ReactNode;
@@ -15,12 +16,17 @@ type Props = {
 
 const SidebarContent = ({ children }: Props) => {
   const dashboard = useDashboard();
+  const pathname = usePathname();
+
   const [hasFetchingError, setHasFetchingError] = React.useState(false);
   if (!dashboard) return null;
 
   const { session, project, projects, selectedProject, setSelectedProject } =
     dashboard;
   const name = initials(session?.user.name ?? "");
+  const shouldShowPlaceholder =
+    !pathname.startsWith("/create-project") &&
+    (!projects || projects.length === 0 || selectedProject === "");
   return (
     <SidebarProvider className="overflow-hidden dark:bg-foundation-blue-900 dark:text-neutral-100">
       <AppSidebar
@@ -36,11 +42,7 @@ const SidebarContent = ({ children }: Props) => {
           setHasFetchingError={setHasFetchingError}
         />
         <div className="h-[calc(100vh-5rem)] overflow-y-auto rounded-md border border-sidebar-border bg-sidebar p-4 shadow dark:border-none dark:bg-foundation-blue-700">
-          {!projects || projects.length === 0 ? (
-            <ProjectPlaceholder />
-          ) : (
-            children
-          )}
+          {shouldShowPlaceholder ? <ProjectPlaceholder /> : children}
         </div>
       </main>
     </SidebarProvider>

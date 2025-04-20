@@ -9,16 +9,6 @@ const config = {
   compiler: {
     styledComponents: true,
   },
-  experimental: {
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*.js",
-        },
-      },
-    },
-  },
 };
 
 export default config;
