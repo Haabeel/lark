@@ -2,28 +2,31 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  firstName     String
-  lastName      String?
-  emailVerified Boolean
-  image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  sessions      Session[]
-  accounts      Account[]
-  projects      Project[] @relation("CreatedProjects")
-  memberships   Member[]
+  id             String     @id
+  name           String
+  email          String
+  firstName      String
+  lastName       String?
+  emailVerified  Boolean
+  image          String?
+  createdAt      DateTime
+  updatedAt      DateTime
+  sessions       Session[]
+  accounts       Account[]
+  projects       Project[]  @relation("CreatedProjects")
+  memberships    Member[]
+  questionsAsked Question[]
 
   @@unique([email])
   @@map("user")
@@ -86,8 +89,11 @@ model Project {
   deletedAt       DateTime?
   creator         User      @relation(fields: [creatorId], references: [id], name: "CreatedProjects", onDelete: Cascade)
 
-  members Member[]
-  Commit  Commit[]
+  members             Member[]
+  Commit              Commit[]
+  SourceCodeEmbedding SourceCodeEmbedding[]
+
+  savedQuestions Question[]
 }
 
 model Member {
@@ -122,4 +128,33 @@ model Commit {
   commitDate         DateTime
 
   summary String
+}
+
+model SourceCodeEmbedding {
+  id String @id @default(cuid())
+
+  summaryEmbedding Unsupported("vector(768)")?
+  sourceCode       String
+  fileName         String
+  summary          String
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  question String
+  answer   String
+
+  filesReference Json?
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

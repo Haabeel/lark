@@ -1,6 +1,8 @@
 import { api } from "@/trpc/react";
 import { useLocalStorage } from "usehooks-ts";
 
+export type UseProjectResult = ReturnType<typeof useProject>;
+
 const useProject = () => {
   const {
     data: projects,

@@ -141,7 +141,6 @@ const isAuthenticatedMiddleware = t.middleware(async ({ next, ctx }) => {
   const user = await auth.api.getSession({
     headers: ctx.headers,
   });
-  console.log(user);
   if (!user) {
     throw new TRPCError({
       code: "UNAUTHORIZED",

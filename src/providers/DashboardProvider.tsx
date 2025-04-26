@@ -1,21 +1,19 @@
 "use client";
 
 import LogoLoader from "@/components/shared/LogoLoader";
-import useProject from "@/hooks/useProject";
+import useProject, { type UseProjectResult } from "@/hooks/useProject";
 import { type Session } from "@/lib/auth";
 import { api } from "@/trpc/react";
-import { type Project } from "@prisma/client";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, type Dispatch, type SetStateAction } from "react";
 
 interface Props {
   children: React.ReactNode;
 }
-
 type ContextType = {
   session: Session | null | undefined;
-  projects: Project[] | undefined;
-  project: Project | undefined;
+  projects: UseProjectResult["projects"];
+  project: UseProjectResult["project"];
   selectedProject: string;
   setSelectedProject: Dispatch<SetStateAction<string>>;
 };

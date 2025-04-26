@@ -35,6 +35,8 @@ export const env = createEnv({
     EDGE_STORE_ACCESS_KEY: z.string(),
     EDGE_STORE_SECRET_KEY: z.string(),
 
+    ASSEMBLY_AI_API_KEY: z.string(),
+
     API_SECRET: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -87,6 +89,8 @@ export const env = createEnv({
 
     EDGE_STORE_ACCESS_KEY: process.env.EDGE_STORE_ACCESS_KEY,
     EDGE_STORE_SECRET_KEY: process.env.EDGE_STORE_SECRET_KEY,
+
+    ASSEMBLY_AI_API_KEY: process.env.ASSEMBLY_AI_API_KEY,
 
     NEXT_PUBLIC_WEBSITE_URL: process.env.NEXT_PUBLIC_WEBSITE_URL,
     API_SECRET: process.env.API_SECRET,

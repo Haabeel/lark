@@ -1,7 +1,6 @@
 import React from "react";
 import { FcGoogle } from "react-icons/fc";
-import FcMicrosoft from "@/components/icons/FcMicrosoft.svg";
-import { FaGithub } from "react-icons/fa";
+import { FaGithub, FaMicrosoft } from "react-icons/fa";
 import { Button } from "../ui/button";
 import { signIn } from "@/lib/auth-client";
 import { toast } from "sonner";
@@ -22,7 +21,7 @@ const socialProviders: SocialProvider[] = [
   },
   {
     provider: "microsoft",
-    Icon: FcMicrosoft as React.ComponentType,
+    Icon: FaMicrosoft as React.ComponentType,
   },
   {
     provider: "github",

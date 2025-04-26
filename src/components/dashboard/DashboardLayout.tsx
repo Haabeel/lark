@@ -1,10 +1,8 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { initials } from "@/lib/utils";
 import { useDashboard } from "@/providers/DashboardProvider";
-import React, { useMemo } from "react";
+import React from "react";
 import AppSidebar from "./AppSidebar";
 import Navbar from "./Navbar";
 import ProjectPlaceholder from "./ProjectPlaceholder";
@@ -18,12 +16,11 @@ const SidebarContent = ({ children }: Props) => {
   const dashboard = useDashboard();
   const pathname = usePathname();
 
-  const [hasFetchingError, setHasFetchingError] = React.useState(false);
   if (!dashboard) return null;
 
   const { session, project, projects, selectedProject, setSelectedProject } =
     dashboard;
-  const name = initials(session?.user.name ?? "");
+  const name = session?.user.name;
   const shouldShowPlaceholder =
     !pathname.startsWith("/create-project") &&
     (!projects || projects.length === 0 || selectedProject === "");
@@ -35,12 +32,7 @@ const SidebarContent = ({ children }: Props) => {
         setSelectedProject={setSelectedProject}
       />
       <main className="my-2 mr-2 flex h-full w-full flex-col gap-2">
-        <Navbar
-          name={name}
-          hasFetchingError={hasFetchingError}
-          session={session}
-          setHasFetchingError={setHasFetchingError}
-        />
+        <Navbar name={name} session={session} project={project} />
         <div className="h-[calc(100vh-5rem)] overflow-y-auto rounded-md border border-sidebar-border bg-sidebar p-4 shadow dark:border-none dark:bg-foundation-blue-700">
           {shouldShowPlaceholder ? <ProjectPlaceholder /> : children}
         </div>

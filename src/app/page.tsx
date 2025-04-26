@@ -11,7 +11,6 @@ export default function Home() {
     try {
       await signOut();
       await refetch();
-      console.log("session signed out successfully!");
     } catch (error) {
       console.error("Error signing out:", error);
     }

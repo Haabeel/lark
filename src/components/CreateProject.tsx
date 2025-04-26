@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import FormInputField from "@/components/shared/FormInputField"; // Your custom component
 import { useState } from "react";
 import { toast } from "sonner";
-import { FolderKey, Key } from "lucide-react";
+import { FolderKey } from "lucide-react";
+import useRefetch from "@/hooks/useRefetch";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -19,7 +21,9 @@ const formSchema = z.object({
 });
 
 export function CreateProjectForm() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const refetch = useRefetch();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,6 +41,7 @@ export function CreateProjectForm() {
     try {
       setLoading(true);
       await createProject(values);
+      await refetch();
       toast.success("Project created successfully.");
     } catch (error) {
       toast.error("Something went wrong...");
@@ -48,7 +53,6 @@ export function CreateProjectForm() {
 
   return (
     <>
-      {/* <div className="flex w-full flex-1 flex-col items-center justify-center rounded-lg sm:max-w-min"> */}
       <Form {...form}>
         <div className="flex w-full flex-col">
           <div className="flex flex-col gap-1">
@@ -94,7 +98,6 @@ export function CreateProjectForm() {
           </form>
         </div>
       </Form>
-      {/* </div> */}
     </>
   );
 }

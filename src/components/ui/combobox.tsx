@@ -34,7 +34,6 @@ export function Combobox({
   onChangeAction,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  console.log(value, "value in combobox");
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -50,7 +49,7 @@ export function Combobox({
                 name={
                   value ? items.find((item) => item.value === value)?.label : ""
                 }
-                className="size-6 rounded-sm"
+                className={`${expanded ? "size-6" : "size-5"} rounded-sm ${!expanded && "text-xs"} transition-all duration-200 ease-linear`}
                 backgroundColor={
                   value
                     ? items.find((item) => item.value === value)

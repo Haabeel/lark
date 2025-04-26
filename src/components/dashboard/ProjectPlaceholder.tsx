@@ -4,11 +4,11 @@ import Image from "next/image";
 
 const ProjectPlaceholder = () => {
   return (
-    <div className="flex h-full w-full items-center justify-center text-2xl">
+    <div className="flex h-full w-full items-center justify-center gap-3 text-2xl">
       <Image
         src={"/vectors/create-project.svg"}
-        height={10}
-        width={10}
+        height={700}
+        width={700}
         alt="create project"
       />
       <div>
