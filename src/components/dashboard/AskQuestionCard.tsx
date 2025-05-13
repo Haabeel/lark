@@ -8,7 +8,7 @@ import useProject from "@/hooks/useProject";
 import { Dialog, DialogClose, DialogContent, DialogHeader } from "../ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Logo from "../shared/Logo";
-import { askQuestion } from "@/app/(protected)/dashboard/actions";
+import { askQuestion } from "@/app/(protected)/commits/actions";
 import { readStreamableValue } from "ai/rsc";
 import MDEditor from "@uiw/react-md-editor";
 import CodeReferences from "./CodeReferences";
@@ -19,6 +19,7 @@ import useRefetch from "@/hooks/useRefetch";
 const AskQuestionCard = () => {
   const { project } = useProject();
   const [question, setQuestion] = React.useState<string>("");
+  const [hasSaved, setHasSaved] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [filesReferences, setFilesReferences] = React.useState<
@@ -59,6 +60,7 @@ const AskQuestionCard = () => {
         onSuccess: () => {
           toast.success("Answer saved successfully!");
           setIsLoading(false);
+          setHasSaved(true);
         },
         onError: () => {
           toast.error("Failed to save answer!");
@@ -72,7 +74,7 @@ const AskQuestionCard = () => {
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="p-auto max-h-[90vh] overflow-y-auto overflow-x-hidden border-none bg-foundation-blue-800 sm:max-w-[80vw]">
+        <DialogContent className="p-auto max-h-[90vh] overflow-y-auto overflow-x-hidden border-white bg-neutral-300 dark:border-none dark:bg-foundation-blue-800 sm:max-w-[80vw]">
           <DialogHeader>
             <div className="flex max-w-[75vw] items-center justify-between pr-2">
               <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -80,8 +82,8 @@ const AskQuestionCard = () => {
                 <span>{question}</span>
               </DialogTitle>
               <Button
-                className="bg-foundation-blue-900 text-neutral-100 hover:bg-foundation-blue-600"
-                disabled={saveAnswer.isPending}
+                className="bg-blue-500 text-neutral-100 hover:bg-blue-800 dark:bg-foundation-blue-900 dark:hover:bg-foundation-blue-600"
+                disabled={saveAnswer.isPending || hasSaved}
                 onClick={async () => {
                   await handleSaveAnswer();
                 }}
@@ -101,15 +103,17 @@ const AskQuestionCard = () => {
           </Button>
         </DialogContent>
       </Dialog>
-      <Card className="relative col-span-3 border-none bg-foundation-blue-900 text-neutral-100">
+      <Card className="relative col-span-3 border-sidebar bg-sidebar text-neutral-100 dark:border-none dark:bg-foundation-blue-900">
         <CardHeader>
-          <CardTitle>Ask a question</CardTitle>
+          <CardTitle className="text-neutral-800 dark:text-neutral-100">
+            Ask a question
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit}>
             <Textarea
               placeholder="Type your question here..."
-              className="resize-x-none max-h-44 border-brand-blue-700 placeholder:text-neutral-300"
+              className="resize-x-none placeholder-text-foundation-blue-900 max-h-44 border-sidebar text-neutral-800 focus:border-transparent dark:border-brand-blue-700 dark:text-neutral-100 dark:placeholder:text-neutral-300"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
             />

@@ -6,7 +6,7 @@ import { DM_Sans } from "next/font/google";
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/ThemeProvider";
-import StyledComponentsRegistry from "@/lib/StyledComponentsRegistry";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -35,10 +35,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <NuqsAdapter>{children}</NuqsAdapter>
           </ThemeProvider>
         </TRPCReactProvider>
-        <Toaster />
+        <Toaster richColors />
       </body>
     </html>
   );

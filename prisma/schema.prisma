@@ -92,17 +92,21 @@ model Project {
   members             Member[]
   Commit              Commit[]
   SourceCodeEmbedding SourceCodeEmbedding[]
+  tasks               Task[]
 
   savedQuestions Question[]
+  KanbanColumn   KanbanColumn[]
 }
 
 model Member {
-  id        String      @id @default(cuid())
-  userId    String
-  projectId String
-  role      ProjectRole @default(CONTRIBUTOR)
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id           String      @id @default(cuid())
+  userId       String
+  projectId    String
+  role         ProjectRole @default(CONTRIBUTOR)
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project      Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks        Task[]      @relation("AssignedTasks")
+  tasksCreated Task[]      @relation("CreatedTasks")
 
   @@unique([userId, projectId])
   @@map("member")
@@ -157,4 +161,62 @@ model Question {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  order       Int
+
+  startDate DateTime @db.Timestamp(6)
+  endDate   DateTime @db.Timestamp(6)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  assigneeId String?
+  assignee   Member? @relation("AssignedTasks", fields: [assigneeId], references: [id], onDelete: Cascade)
+
+  createdById String
+  createdBy   Member @relation("CreatedTasks", fields: [createdById], references: [id], onDelete: Cascade)
+
+  columnId String?
+  column   KanbanColumn? @relation(fields: [columnId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("task")
+}
+
+model KanbanColumn {
+  id    String @id @default(cuid())
+  name  String
+  order Int
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  tasks Task[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("kanban_column")
+}
+
+enum TaskStatus {
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
 }

@@ -31,7 +31,7 @@ const SidebarContent = ({ children }: Props) => {
         selectedProject={selectedProject}
         setSelectedProject={setSelectedProject}
       />
-      <main className="my-2 mr-2 flex h-full w-full flex-col gap-2">
+      <main className="my-2 ml-2 mr-2 flex h-full w-full flex-col gap-2 md:ml-0">
         <Navbar name={name} session={session} project={project} />
         <div className="h-[calc(100vh-5rem)] overflow-y-auto rounded-md border border-sidebar-border bg-sidebar p-4 shadow dark:border-none dark:bg-foundation-blue-700">
           {shouldShowPlaceholder ? <ProjectPlaceholder /> : children}

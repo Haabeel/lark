@@ -17,7 +17,7 @@ export default async function middleware(req: NextRequest) {
   if (session.data && authRoutes.includes(pathname))
     return NextResponse.redirect(new URL("/", req.url));
 
-  if (!session.data && pathname === "/dashboard") {
+  if (!session.data && pathname === "/commits") {
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 

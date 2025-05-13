@@ -1,0 +1,111 @@
+/* globals.css */
+
+/* ------------------------------------------------------------
+   ROOT CALENDAR CONTAINER (Light & Dark)
+   ------------------------------------------------------------ */
+.rbc-calendar {
+  @apply overflow-hidden rounded-lg border bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:shadow-none;
+}
+
+/* ------------------------------------------------------------
+   TOOLBAR (HEADER) STYLING
+   ------------------------------------------------------------ */
+.rbc-calendar .rbc-toolbar {
+  @apply mb-0 flex flex-col items-center justify-between border-b bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900 md:flex-row;
+}
+
+.rbc-toolbar button {
+  @apply text-gray-700 transition-colors hover:text-gray-900 dark:text-neutral-100 dark:hover:text-gray-900;
+}
+
+.rbc-calendar .rbc-toolbar-label {
+  @apply text-end text-xl font-semibold text-gray-900 dark:text-gray-100;
+}
+
+.rbc-calendar .rbc-button-link {
+  @apply text-sm font-medium text-gray-700 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white;
+}
+
+/* ------------------------------------------------------------
+   WEEKDAY HEADERS
+   ------------------------------------------------------------ */
+.rbc-calendar .rbc-header {
+  @apply pb-3 text-sm font-medium uppercase tracking-wider text-gray-600;
+  border-bottom: 1px solid theme("colors.gray.200");
+  @apply dark:border-gray-600 dark:text-gray-400;
+}
+
+.rbc-calendar .rbc-header + .rbc-header {
+  border-left: 1px solid theme("colors.gray.200");
+  @apply dark:border-gray-600;
+}
+
+/* ------------------------------------------------------------
+   MONTH ROWS & DAY CELLS
+   ------------------------------------------------------------ */
+.rbc-calendar .rbc-month-row {
+  @apply min-h-[180px] divide-x divide-gray-200 border-t;
+  @apply dark:divide-gray-700 dark:border-gray-700;
+}
+
+.rbc-calendar .rbc-month-row:last-child {
+  @apply border-b-0;
+}
+
+.rbc-calendar .rbc-day-bg,
+.rbc-calendar .rbc-day-slot {
+  @apply p-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700;
+}
+
+/* Highlight “today” */
+.rbc-calendar .rbc-today {
+  @apply bg-blue-50 dark:bg-blue-900;
+}
+
+/* Grey out days not in the current month */
+.rbc-calendar .rbc-off-range {
+  @apply bg-gray-100 dark:bg-foundation-blue-900;
+}
+
+.rbc-month-view {
+  @apply border-none;
+}
+.rbc-day-bg + .rbc-day-bg {
+  @apply border-l dark:border-l-gray-700;
+}
+
+/* ------------------------------------------------------------
+   EVENTS IN MONTH VIEW
+   ------------------------------------------------------------ */
+/* Light event pill */
+.rbc-calendar .rbc-event {
+  @apply mb-1 block rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-700;
+}
+
+/* Dark event pill override */
+.dark .rbc-calendar .rbc-event {
+  @apply bg-blue-500 hover:bg-blue-600;
+}
+
+.rbc-calendar .rbc-event-label {
+  @apply truncate;
+}
+
+.rbc-off-range-bg {
+  @apply bg-gray-100 dark:bg-foundation-blue-900;
+}
+
+/* ------------------------------------------------------------
+   RESPONSIVE & ACCESSIBILITY
+   ------------------------------------------------------------ */
+/* Scrollable on small screens */
+@media (max-width: 640px) {
+  .rbc-calendar .rbc-month-view {
+    @apply overflow-x-auto;
+  }
+}
+
+/* Focus ring for keyboard nav */
+.rbc-calendar .rbc-event:focus {
+  @apply outline-none ring-2 ring-blue-400 ring-offset-2 dark:ring-blue-600;
+}

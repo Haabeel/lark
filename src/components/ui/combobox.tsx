@@ -25,6 +25,10 @@ interface ComboboxProps {
   value: string;
   expanded?: boolean;
   onChangeAction: (value: string) => void;
+  className?: string;
+  hideAvatar?: boolean;
+  label?: string;
+  contentClassName?: string;
 }
 
 export function Combobox({
@@ -32,6 +36,10 @@ export function Combobox({
   value,
   expanded,
   onChangeAction,
+  className,
+  hideAvatar,
+  label,
+  contentClassName,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   return (
@@ -40,43 +48,55 @@ export function Combobox({
         <Button
           variant="outline"
           role="combobox"
+          type="button"
           aria-expanded={open}
-          className="dark:border-1 flex h-full w-full items-center justify-between rounded-md border-none p-4 shadow-none dark:bg-foundation-blue-700 dark:text-neutral-100 dark:hover:bg-foundation-blue-700/50"
+          className={cn(
+            `dark:border-1 flex h-full w-full items-center ${expanded ? "justify-between" : "justify-center"} rounded-md border-none bg-sidebar p-4 shadow-none hover:bg-sidebar/50 dark:bg-foundation-blue-700 dark:text-neutral-100 dark:hover:bg-foundation-blue-700/50`,
+            className,
+          )}
         >
-          <div className="flex items-center justify-between gap-2">
-            {value ? (
-              <Avatar
-                name={
-                  value ? items.find((item) => item.value === value)?.label : ""
-                }
-                className={`${expanded ? "size-6" : "size-5"} rounded-sm ${!expanded && "text-xs"} transition-all duration-200 ease-linear`}
-                backgroundColor={
-                  value
-                    ? items.find((item) => item.value === value)
-                        ?.backgroundColor
-                    : undefined
-                }
-              />
-            ) : (
-              <FolderGit2
-                className="text-neutral-100"
-                style={{ width: "22px", height: "22px" }}
-              />
-            )}
+          <div className={`flex items-center justify-between gap-2`}>
+            {!hideAvatar &&
+              (value ? (
+                <Avatar
+                  name={
+                    value
+                      ? items.find((item) => item.value === value)?.label
+                      : ""
+                  }
+                  className={`${expanded ? "size-6" : "size-5"} rounded-sm ${!expanded && "text-xs"} transition-all duration-200 ease-linear`}
+                  backgroundColor={
+                    value
+                      ? items.find((item) => item.value === value)
+                          ?.backgroundColor
+                      : undefined
+                  }
+                />
+              ) : (
+                <FolderGit2
+                  className="text-neutral-100"
+                  style={{ width: "22px", height: "22px" }}
+                />
+              ))}
             {expanded && (
               <p>
-                {value
+                {value && value !== ""
                   ? items.find((item) => item.value === value)?.label
-                  : "Select Project"}
+                  : (label ?? "Select Project")}
               </p>
             )}
           </div>
           {expanded && <ChevronsUpDown className="opacity-50" />}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full min-w-56 px-4 py-2 dark:border-none dark:bg-foundation-blue-900">
+      <PopoverContent
+        className={cn(
+          "w-full min-w-56 px-4 py-2 dark:border-none dark:bg-foundation-blue-900",
+          contentClassName,
+        )}
+      >
         <Command className="dark:bg-foundation-blue-900">
-          {items.length > 0 && (
+          {items.length > 4 && (
             <CommandInput
               placeholder="Search a Project"
               className="h-9 dark:text-neutral-100 dark:placeholder:text-neutral-300"
@@ -95,7 +115,7 @@ export function Combobox({
             <CommandGroup>
               {items.map((item) => (
                 <CommandItem
-                  className="cursor-pointer dark:bg-foundation-blue-900 dark:text-neutral-100"
+                  className="cursor-pointer text-xs hover:bg-foundation-neutral-400 dark:bg-foundation-blue-900 dark:text-neutral-100 dark:hover:bg-foundation-blue-700"
                   key={item.value}
                   value={item.value}
                   onSelect={(currentValue) => {

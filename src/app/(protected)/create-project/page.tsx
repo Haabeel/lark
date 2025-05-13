@@ -10,7 +10,7 @@ const CreateProject = () => {
         src={"/vectors/version-control.svg"}
         width={400}
         height={500}
-        className="h-[280px] w-auto"
+        className="h-[150px] w-auto md:h-[280px]"
         alt="version control"
       />
     </div>

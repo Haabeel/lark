@@ -1,5 +1,10 @@
 import { auth } from "@/lib/auth";
-import { createTRPCRouter, publicProcedure, secureProcedure } from "../trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+  secureProcedure,
+} from "../trpc";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 

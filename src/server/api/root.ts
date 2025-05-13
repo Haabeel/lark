@@ -2,6 +2,7 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { authRouter } from "./routers/auth";
 import { projectRouter } from "./routers/project";
 import { imageRouter } from "./routers/image";
+import { userRouter } from "./routers/user";
 /**
  * This is the primary router for your server.
  *
@@ -9,6 +10,7 @@ import { imageRouter } from "./routers/image";
  */
 export const appRouter = createTRPCRouter({
   auth: authRouter,
+  user: userRouter,
   project: projectRouter,
   image: imageRouter,
 });

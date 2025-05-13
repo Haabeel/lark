@@ -4,14 +4,27 @@ import LogoLoader from "@/components/shared/LogoLoader";
 import useProject, { type UseProjectResult } from "@/hooks/useProject";
 import { type Session } from "@/lib/auth";
 import { api } from "@/trpc/react";
+import { type Prisma } from "@prisma/client";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, type Dispatch, type SetStateAction } from "react";
 
 interface Props {
   children: React.ReactNode;
 }
+
+export type User = Prisma.UserGetPayload<{
+  include: {
+    accounts: true;
+    memberships: true;
+    projects: true;
+    questionsAsked: true;
+    sessions: true;
+  };
+}>;
+
 type ContextType = {
   session: Session | null | undefined;
+  user: User | null | undefined;
   projects: UseProjectResult["projects"];
   project: UseProjectResult["project"];
   selectedProject: string;
@@ -26,6 +39,7 @@ const DashboardProvider = ({ children }: Props) => {
   const pathname = usePathname();
   const { data: session, isLoading: isSessionLoading } =
     api.auth.getSession.useQuery();
+  const { data: user } = api.user.getUser.useQuery();
   const {
     projects,
     project,
@@ -54,6 +68,7 @@ const DashboardProvider = ({ children }: Props) => {
     <dashboardContext.Provider
       value={{
         session,
+        user,
         projects,
         project,
         selectedProject,

@@ -70,10 +70,10 @@ export const AnimatedTooltip = ({
                   rotate: rotate,
                   whiteSpace: "nowrap",
                 }}
-                className="absolute top-full z-50 mt-2 flex flex-col items-center justify-center rounded-md bg-black p-2 text-xs shadow-xl"
+                className="absolute top-full z-50 mt-2 flex flex-col items-center justify-center rounded-md bg-neutral-400 p-2 text-xs shadow-xl dark:bg-black"
               >
-                <div className="absolute inset-x-10 -bottom-px z-30 h-px w-[20%] bg-gradient-to-r from-transparent via-emerald-500 to-transparent" />
-                <div className="absolute -bottom-px left-10 z-30 h-px w-[40%] bg-gradient-to-r from-transparent via-sky-500 to-transparent" />
+                {/* <div className="absolute inset-x-10 -bottom-px z-30 h-px w-[20%] bg-gradient-to-r from-transparent via-emerald-500 to-transparent" /> */}
+                {/* <div className="absolute -bottom-px left-10 z-30 h-px w-[40%] bg-gradient-to-r from-transparent via-sky-500 to-transparent" /> */}
                 <div className="relative z-30 text-[12px] font-bold text-white">
                   {item.name}
                 </div>
@@ -109,7 +109,7 @@ export const AnimatedTooltip = ({
           ) : (
             <div
               onMouseMove={handleMouseMove}
-              className={`relative !m-0 flex h-[30px] w-[30px] cursor-default items-center justify-center rounded-full border-2 border-white object-cover object-top !p-0 transition duration-500 group-hover:z-30 group-hover:scale-105`}
+              className={`relative !m-0 flex h-[30px] w-[30px] cursor-default items-center justify-center rounded-full border-2 border-white object-cover object-top !p-0 text-neutral-50 transition duration-500 group-hover:z-30 group-hover:scale-105`}
               style={{ backgroundColor: createBackgroundHue() }}
             >
               {initials(item.name)}

@@ -29,7 +29,7 @@ export const getCommitHashes = async (githubUrl: string) => {
       new Date(a.commit.author?.date).getTime()) as any;
   });
   // TO DO: Remove the slice to make the function return all commits
-  return sortedCommits.slice(0, 10).map((commit: any) => ({
+  return sortedCommits.map((commit: any) => ({
     commitHash: commit.sha as string,
     commitMessage: (commit.commit.message as string) ?? "",
     commitAuthorName: (commit.commit.author?.name as string) ?? "",
