@@ -141,11 +141,13 @@ export default function EditTaskDialog({
             placeholder="Title"
             {...register("title")}
             className="border border-neutral-700 text-neutral-500 placeholder:text-neutral-500 dark:text-neutral-100 dark:placeholder:text-neutral-100"
+            disabled={updateTask.isPending}
           />
           <Textarea
             placeholder="Description"
             {...register("description")}
             className="resize-x-none max-h-32 border border-neutral-700 text-neutral-500 placeholder:text-neutral-500 dark:text-neutral-100 dark:placeholder:text-neutral-100"
+            disabled={updateTask.isPending}
           />
           <div className="flex gap-2">
             <div className="flex-1">
@@ -164,6 +166,7 @@ export default function EditTaskDialog({
                         };
                       }) ?? []
                     }
+                    disabled={updateTask.isPending}
                     value={field.value}
                     onChangeAction={(val) => field.onChange(val)}
                     className="h-8 w-full text-xs text-neutral-500 ring-1 ring-neutral-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -186,6 +189,7 @@ export default function EditTaskDialog({
                       label: p,
                       value: p,
                     }))}
+                    disabled={updateTask.isPending}
                     value={field.value}
                     onChangeAction={(val) => field.onChange(val)}
                     className="h-8 w-full text-xs text-neutral-500 ring-1 ring-neutral-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -206,6 +210,7 @@ export default function EditTaskDialog({
                       label: s,
                       value: s,
                     }))}
+                    disabled={updateTask.isPending}
                     value={field.value}
                     onChangeAction={(val) => field.onChange(val)}
                     className="h-8 w-full text-xs text-neutral-500 ring-1 ring-neutral-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -235,6 +240,7 @@ export default function EditTaskDialog({
                         onStart(r?.from ?? startDate);
                         onEnd(r?.to ?? r?.from ?? endDate);
                       }}
+                      disabled={updateTask.isPending}
                     />
                   );
                 }}
@@ -248,7 +254,7 @@ export default function EditTaskDialog({
             type="submit"
             onClick={() => console.log(formState.errors)}
             className={`w-full bg-brand-blue-400 text-neutral-100 ${isLoading ? "opacity-50 hover:bg-brand-blue-400" : ""}`}
-            disabled={isLoading}
+            disabled={updateTask.isPending || isLoading}
           >
             {isLoading ? "Updating..." : "Update Task"}
           </Button>

@@ -48,6 +48,100 @@ export const projectRouter = createTRPCRouter({
         });
       }
     }),
+  getProject: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        return await ctx.db.project.findUnique({
+          where: { id: input.projectId },
+        });
+      } catch (error) {
+        console.error(error);
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch project",
+        });
+      }
+    }),
+  updateProject: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        githubUrl: z.string().optional(),
+        backgroundColor: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const { projectId, name, description, githubUrl, backgroundColor } =
+          input;
+
+        const existing = await ctx.db.project.findUnique({
+          where: { id: projectId },
+          select: { githubUrl: true },
+        });
+        if (!existing) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Project not found",
+          });
+        }
+
+        const data: {
+          name?: string;
+          description?: string;
+          githubUrl?: string;
+          backgroundColor?: string;
+        } = {};
+        if (name !== undefined) data.name = name;
+        if (description !== undefined) data.description = description;
+        if (backgroundColor !== undefined)
+          data.backgroundColor = backgroundColor;
+
+        // 3) If GitHub URL changed, wipe old data & re-index
+        const normalized = githubUrl
+          ? githubUrl.endsWith("/")
+            ? githubUrl.slice(0, -1)
+            : githubUrl
+          : undefined;
+
+        const doReindex = normalized && normalized !== existing.githubUrl;
+        if (doReindex) {
+          // transaction: delete old relations, update URL, then outside reindex
+          await ctx.db.$transaction([
+            ctx.db.commit.deleteMany({ where: { projectId } }),
+            ctx.db.question.deleteMany({ where: { projectId } }),
+            ctx.db.sourceCodeEmbedding.deleteMany({ where: { projectId } }),
+            // you might also clear KanbanColumns or Tasks if desired
+            ctx.db.project.update({
+              where: { id: projectId },
+              data: { githubUrl: normalized, ...data },
+            }),
+          ]);
+
+          // kick off background indexing & polling
+          await indexGithubRepo(projectId, normalized, /* token? */ undefined);
+          pollCommits(projectId).catch(console.error);
+        } else {
+          // just update non-github fields or same URL
+          if (normalized) data.githubUrl = normalized;
+          await ctx.db.project.update({
+            where: { id: projectId },
+            data,
+          });
+        }
+
+        return await ctx.db.project.findUnique({ where: { id: projectId } });
+      } catch (error) {
+        console.error(error);
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch project",
+        });
+      }
+    }),
   getProjects: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.project.findMany({
       where: {
@@ -194,6 +288,44 @@ export const projectRouter = createTRPCRouter({
         where: { projectId: input.projectId },
         include: { user: true },
       });
+    }),
+  updateMemberRole: protectedProcedure
+    .input(
+      z.object({
+        memberId: z.string(),
+        role: z.enum(["MAINTAINER", "CONTRIBUTOR"]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        return await ctx.db.member.update({
+          where: { id: input.memberId },
+          data: {
+            role: input.role,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update member role",
+        });
+      }
+    }),
+  removeMember: protectedProcedure
+    .input(z.object({ memberId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        return await ctx.db.member.delete({
+          where: { id: input.memberId },
+        });
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to remove member",
+        });
+      }
     }),
   getTasks: protectedProcedure
     .input(z.object({ projectId: z.string() }))
@@ -489,5 +621,182 @@ export const projectRouter = createTRPCRouter({
       return await ctx.db.kanbanColumn.delete({
         where: { id: input.columnId },
       });
+    }),
+  getOverview: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const projectId = input.projectId;
+        const now = new Date();
+        const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfLastMonth = new Date(
+          now.getFullYear(),
+          now.getMonth() - 1,
+          1,
+        );
+
+        // Base counts and groupings scoped to project
+        const [
+          totalTasks,
+          tasksByStatus,
+          tasksByPriority,
+          totalCommits,
+          totalQuestions,
+          tasksThisMonth,
+          tasksLastMonth,
+          commitsThisMonth,
+          commitsLastMonth,
+          completedTasks,
+          overdueTasks,
+        ] = await Promise.all([
+          ctx.db.task.count({ where: { projectId } }),
+          ctx.db.task.groupBy({
+            by: ["status"],
+            where: { projectId },
+            _count: { status: true },
+          }),
+          ctx.db.task.groupBy({
+            by: ["priority"],
+            where: { projectId },
+            _count: { priority: true },
+          }),
+          ctx.db.commit.count({ where: { projectId } }),
+          ctx.db.question.count({ where: { projectId } }),
+          ctx.db.task.count({
+            where: { projectId, createdAt: { gte: startOfThisMonth } },
+          }),
+          ctx.db.task.count({
+            where: {
+              projectId,
+              createdAt: { gte: startOfLastMonth, lt: startOfThisMonth },
+            },
+          }),
+          ctx.db.commit.count({
+            where: { projectId, commitDate: { gte: startOfThisMonth } },
+          }),
+          ctx.db.commit.count({
+            where: {
+              projectId,
+              commitDate: { gte: startOfLastMonth, lt: startOfThisMonth },
+            },
+          }),
+          ctx.db.task.count({ where: { projectId, status: "DONE" } }),
+          ctx.db.task.count({
+            where: { projectId, endDate: { lt: now }, status: { not: "DONE" } },
+          }),
+        ]);
+
+        // Member-specific analytics
+        const members = await ctx.db.member.findMany({
+          where: { projectId },
+          include: { user: true },
+        });
+
+        // Overall commit frequency (all time)
+        const firstCommit = await ctx.db.commit.findFirst({
+          where: { projectId },
+          select: { commitDate: true },
+          orderBy: { commitDate: "asc" },
+        });
+        const since = firstCommit?.commitDate ?? new Date();
+        const days =
+          Math.ceil((now.getTime() - since.getTime()) / (1000 * 60 * 60 * 24)) +
+          1;
+
+        const recentCommitsAll = await ctx.db.commit.findMany({
+          where: { projectId },
+          select: { commitDate: true },
+        });
+
+        const freqMapAll: Record<string, number> = {};
+        for (let i = 0; i < days; i++) {
+          const d = new Date(since);
+          d.setDate(since.getDate() + i);
+          const key = d.toISOString().slice(0, 10);
+          freqMapAll[key] = 0;
+        }
+        recentCommitsAll.forEach(({ commitDate }) => {
+          const key = commitDate.toISOString().slice(0, 10);
+          if (freqMapAll[key] !== undefined) freqMapAll[key]++;
+        });
+        const commitFrequency = Object.entries(freqMapAll).map(
+          ([date, count]) => ({ date, count }),
+        );
+
+        // Commit contributions by author
+        const commitContributionsRaw = await ctx.db.commit.groupBy({
+          by: ["commitAuthorName", "commitAuthorAvatar"],
+          where: { projectId },
+          _count: { commitAuthorName: true },
+        });
+        const commitContributions = commitContributionsRaw.map((c) => ({
+          author: c.commitAuthorName,
+          avatar: c.commitAuthorAvatar,
+          count: c._count.commitAuthorName,
+        }));
+
+        const memberStats = await Promise.all(
+          members.map(async (member) => {
+            const [assignedCount, completedCount, overdueCount] =
+              await Promise.all([
+                ctx.db.task.count({
+                  where: { projectId, assigneeId: member.id },
+                }),
+                ctx.db.task.count({
+                  where: { projectId, assigneeId: member.id, status: "DONE" },
+                }),
+                ctx.db.task.count({
+                  where: {
+                    projectId,
+                    assigneeId: member.id,
+                    endDate: { lt: now },
+                    status: { not: "DONE" },
+                  },
+                }),
+              ]);
+            return {
+              memberId: member.id,
+              user: {
+                id: member.user.id,
+                name: member.user.name,
+                email: member.user.email,
+                avatar: member.user.image,
+              },
+              assignedCount,
+              completedCount,
+              overdueCount,
+            };
+          }),
+        );
+
+        return {
+          totalTasks,
+          tasksByStatus: tasksByStatus.map((g) => ({
+            status: g.status,
+            count: g._count.status,
+          })),
+          tasksByPriority: tasksByPriority.map((g) => ({
+            priority: g.priority,
+            count: g._count.priority,
+          })),
+          totalCommits,
+          totalQuestions,
+          tasksThisMonth,
+          tasksLastMonth,
+          commitsThisMonth,
+          commitsLastMonth,
+          completedTasks,
+          overdueTasks,
+          commitFrequency,
+          commitContributions,
+          memberStats,
+        };
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch analytics",
+        });
+      }
     }),
 });

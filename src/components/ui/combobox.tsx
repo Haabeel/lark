@@ -29,6 +29,8 @@ interface ComboboxProps {
   hideAvatar?: boolean;
   label?: string;
   contentClassName?: string;
+  icon?: React.ReactNode;
+  disabled?: boolean;
 }
 
 export function Combobox({
@@ -40,6 +42,8 @@ export function Combobox({
   hideAvatar,
   label,
   contentClassName,
+  icon,
+  disabled,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   return (
@@ -50,6 +54,7 @@ export function Combobox({
           role="combobox"
           type="button"
           aria-expanded={open}
+          disabled={disabled}
           className={cn(
             `dark:border-1 flex h-full w-full items-center ${expanded ? "justify-between" : "justify-center"} rounded-md border-none bg-sidebar p-4 shadow-none hover:bg-sidebar/50 dark:bg-foundation-blue-700 dark:text-neutral-100 dark:hover:bg-foundation-blue-700/50`,
             className,
@@ -73,10 +78,12 @@ export function Combobox({
                   }
                 />
               ) : (
-                <FolderGit2
-                  className="text-neutral-100"
-                  style={{ width: "22px", height: "22px" }}
-                />
+                (icon ?? (
+                  <FolderGit2
+                    className="text-neutral-100"
+                    style={{ width: "22px", height: "22px" }}
+                  />
+                ))
               ))}
             {expanded && (
               <p>

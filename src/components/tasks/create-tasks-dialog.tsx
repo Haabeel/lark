@@ -156,11 +156,13 @@ const CreateTasksDialog = (props: CreateTasksDialogProps) => {
             placeholder="Title"
             {...register("title")}
             className="border border-neutral-700 text-neutral-500 placeholder:text-neutral-500 dark:text-neutral-100 dark:placeholder:text-neutral-100"
+            disabled={createTask.isPending}
           />
           <Textarea
             placeholder="Description"
             {...register("description")}
             className="resize-x-none max-h-32 border border-neutral-700 text-neutral-500 placeholder:text-neutral-500 dark:text-neutral-100 dark:placeholder:text-neutral-100"
+            disabled={createTask.isPending}
           />
           <div className="flex w-full items-center gap-2">
             <div className="flex w-full flex-col gap-2">
@@ -181,6 +183,7 @@ const CreateTasksDialog = (props: CreateTasksDialogProps) => {
                     )
                     .map((p) => ({ label: p.name, value: p.id })) ?? []
                 }
+                disabled={createTask.isPending}
                 onChangeAction={(val) => {
                   setValue("projectId", val);
                   setSelectedProjectId(val);
@@ -211,6 +214,7 @@ const CreateTasksDialog = (props: CreateTasksDialogProps) => {
                       value: member.id,
                     })) ?? []
                 }
+                disabled={createTask.isPending}
                 onChangeAction={(val) => {
                   setValue("assigneeId", val);
                 }}
@@ -234,6 +238,7 @@ const CreateTasksDialog = (props: CreateTasksDialogProps) => {
                   label: priority,
                   value: priority,
                 }))}
+                disabled={createTask.isPending}
                 onChangeAction={(val) => {
                   setValue("priority", val as TaskPriority);
                 }}
@@ -253,6 +258,7 @@ const CreateTasksDialog = (props: CreateTasksDialogProps) => {
                   label: status,
                   value: status,
                 }))}
+                disabled={createTask.isPending}
                 onChangeAction={(val) => {
                   setValue("status", val as TaskStatus);
                 }}
@@ -286,6 +292,7 @@ const CreateTasksDialog = (props: CreateTasksDialogProps) => {
                           onStartChange(range?.from ?? null);
                           onEndChange(range?.to ?? range?.from ?? null); // fallback to from if to is undefined
                         }}
+                        disabled={createTask.isPending}
                       />
                     );
                   }}
@@ -310,7 +317,7 @@ const CreateTasksDialog = (props: CreateTasksDialogProps) => {
             }
             type="submit"
             className="w-full bg-brand-blue-400 text-neutral-100"
-            disabled={formState.isLoading}
+            disabled={createTask.isPending}
           >
             {formState.isLoading ? "Creating..." : "Create Task"}
           </Button>

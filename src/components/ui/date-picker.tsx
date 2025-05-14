@@ -17,12 +17,14 @@ type DatePickerWithPresetsProps = {
   className?: string;
   value?: DateRange;
   onChange?: (value: DateRange | undefined) => void;
+  disabled?: boolean;
 };
 
 export function DatePickerWithPresets({
   className,
   value,
   onChange,
+  disabled,
 }: DatePickerWithPresetsProps) {
   const [date, setDate] = React.useState<DateRange | undefined>(value);
   const today = startOfDay(new Date());
@@ -88,6 +90,7 @@ export function DatePickerWithPresets({
               !date && "text-muted-foreground",
               "h-8 border-none bg-transparent text-xs text-neutral-500 ring-1 ring-neutral-700 hover:bg-transparent dark:bg-foundation-blue-700 dark:text-neutral-100",
             )}
+            disabled={disabled}
           >
             <CalendarIcon className="h-4 w-4" />
             {date?.from ? (

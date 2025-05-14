@@ -94,7 +94,7 @@ export const Columns: ColumnDef<Column>[] = [
       const priority = row.getValue("priority") as string;
       const color =
         priority === "HIGH"
-          ? "hover:bg-pink-600 bg-red-500 text-red-800"
+          ? "hover:bg-red-600 bg-red-500 text-red-800"
           : priority === "LOW"
             ? "hover:bg-yellow-400 bg-yellow-200 text-yellow-800"
             : "hover:bg-green-400 bg-foundation-green-200 text-foundation-green-800";

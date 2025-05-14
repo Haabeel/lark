@@ -11,39 +11,31 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { type Column } from "./columns";
+import { type Column } from "../tasks/columns";
 import { api } from "@/trpc/react";
 import useRefetch from "@/hooks/useRefetch";
 import { toast } from "sonner";
 
-export function DeleteTaskDialog({
+export function DeleteMemberDialog({
   open,
   onOpenAction,
-  task,
+  member,
 }: {
   open: boolean;
   onOpenAction: (val: boolean) => void;
-  task: Column | string;
+  member: string;
 }) {
-  const deleteTask = api.project.deleteTask.useMutation();
+  const removeMember = api.project.removeMember.useMutation();
   const refetch = useRefetch();
   const [internalOpen, setInternalOpen] = React.useState(open);
   const handleDeleteTask = async () => {
     try {
-      deleteTask.mutate(
-        { taskId: typeof task === "string" ? task : task.id },
-        {
-          onSuccess: () => {
-            toast.success("Task deleted successfully");
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            refetch();
-            onOpenAction(false);
-          },
-        },
-      );
+      removeMember.mutate({ memberId: member });
+      await refetch();
+      onOpenAction(false);
     } catch (error) {
-      toast.error("Failed to delete task");
-      console.error("Error deleting task:", error);
+      toast.error("Failed to remove member");
+      console.error("Error deleting member:", error);
     }
   };
   React.useEffect(() => {
@@ -57,9 +49,9 @@ export function DeleteTaskDialog({
     <Dialog key={"DELETE"} open={open} onOpenChange={onOpenAction}>
       <DialogContent className="max-w-[80vw] border-black bg-neutral-300 text-black dark:bg-foundation-blue-800 dark:text-neutral-100 sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-lg">Delete Task</DialogTitle>
+          <DialogTitle className="text-lg">Remove Member</DialogTitle>
           <DialogDescription className="text-xs text-black dark:text-neutral-200 sm:text-sm">
-            This action will delete the selected task. You cannot restore it.
+            This action will remove the selected member. You cannot restore it.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -67,17 +59,12 @@ export function DeleteTaskDialog({
             <Button
               variant="outline"
               className="text-foundation-blue-900 dark:text-neutral-100"
-              disabled={deleteTask.isPending}
             >
               Cancel
             </Button>
           </DialogClose>
-          <Button
-            variant="destructive"
-            onClick={handleDeleteTask}
-            disabled={deleteTask.isPending}
-          >
-            Confirm Delete
+          <Button variant="destructive" onClick={handleDeleteTask} className="">
+            Confirm Remove
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -18,8 +18,10 @@ import {
   Bot,
   LayoutDashboard,
   Plus,
-  Presentation,
   ListTodo,
+  ChartLine,
+  Users,
+  GitGraphIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -33,12 +35,18 @@ interface Props {
   setSelectedProject: Dispatch<SetStateAction<string>>;
 }
 
-const items = [
-  { name: "Commits", url: "/commits", icon: LayoutDashboard },
-  { name: "Q&A", url: "/qa", icon: Bot },
-  { name: "Meetings", url: "/meetings", icon: Presentation },
-  { name: "Tasks", url: "/tasks", icon: ListTodo },
-];
+const items = {
+  ai: [
+    { name: "Commits", url: "/commits", icon: GitGraphIcon },
+    { name: "Q&A", url: "/qa", icon: Bot },
+  ],
+  management: [
+    { name: "Project", url: "/project", icon: LayoutDashboard },
+    { name: "Members", url: "/members", icon: Users },
+    { name: "Tasks", url: "/tasks", icon: ListTodo },
+    { name: "Analytics", url: "/analytics", icon: ChartLine },
+  ],
+};
 
 const AppSidebar = ({
   projects,
@@ -73,7 +81,35 @@ const AppSidebar = ({
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {items.map((item) => (
+                {items.ai.map((item) => (
+                  <SidebarMenuItem key={item.name}>
+                    <SidebarMenuButton asChild>
+                      <Link
+                        href={item.url}
+                        className={cn(
+                          {
+                            "!dark:bg-brand-blue-700 bg-brand-blue-500 text-white":
+                              pathname === item.url,
+                          },
+                          "list-none hover:bg-foundation-blue-600 hover:text-black hover:dark:bg-foundation-blue-800 hover:dark:text-neutral-50 focus:dark:bg-foundation-blue-600 focus:dark:text-neutral-50",
+                        )}
+                      >
+                        <item.icon />
+                        <span>{item.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <span className="text-md mr-1">🗂️</span>Management
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.management.map((item) => (
                   <SidebarMenuItem key={item.name}>
                     <SidebarMenuButton asChild>
                       <Link
