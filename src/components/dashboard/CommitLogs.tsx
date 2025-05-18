@@ -15,7 +15,10 @@ import NotFoundImage from "../shared/NotFoundImage";
 type Commit = inferRouterOutputs<AppRouter>["project"]["getCommits"][number];
 const CommitLogs = () => {
   const { selectedProject: projectId, project } = useProject();
-  const { data: commits } = api.project.getCommits.useQuery({ projectId });
+  const { data: commits } = api.project.getCommits.useQuery(
+    { projectId: projectId! },
+    { enabled: !!projectId },
+  );
   const getChangeCount = (commit: Commit) => {
     return commit.summary
       .split("\n")

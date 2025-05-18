@@ -8,15 +8,34 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   user: {
+    deleteUser: {
+      enabled: true,
+    },
     additionalFields: {
       firstName: {
         type: "string",
         required: true,
       },
     },
+    changeEmail: {
+      enabled: true,
+      sendChangeEmailVerification: async ({ user, token, url, newEmail }) => {
+        const { api } = await import("@/trpc/server");
+        console.log("Sending email verification for change email");
+        await api.auth
+          .sendFogetPasswordEmail({ email: newEmail, url })
+          .catch((error) => console.log(error));
+      },
+    },
   },
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, token, url }) => {
+      const { api } = await import("@/trpc/server");
+      await api.auth
+        .sendFogetPasswordEmail({ email: user.email, url })
+        .catch((error) => console.log(error));
+    },
   },
   socialProviders: {
     github: {

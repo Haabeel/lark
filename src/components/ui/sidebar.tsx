@@ -59,6 +59,7 @@ const SidebarProvider = React.forwardRef<
     defaultOpen?: boolean;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
+    setTab?: (tab: "app" | "chat") => void;
   }
 >(
   (

@@ -152,7 +152,6 @@ export default function EditTaskDialog({
           <div className="flex gap-2">
             <div className="flex-1">
               <label className="text-sm">Assignee</label>
-              <label className="text-sm">Priority</label>
               <Controller
                 control={control}
                 name="assigneeId"

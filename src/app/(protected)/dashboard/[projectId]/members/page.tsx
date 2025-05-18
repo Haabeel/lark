@@ -40,6 +40,11 @@ type MemberOption = { value: string; label: string };
 export default function MembersPage() {
   const dashboard = useDashboard();
   const projectId = dashboard?.selectedProject;
+  const project = dashboard?.project;
+  const user = dashboard?.user;
+  const isMaintainer =
+    project?.members.find((member) => member.userId === user?.id)?.role ===
+    "MAINTAINER";
   const utils = api.useContext();
   const [pendingRoleUpdate, setPendingRoleUpdate] = useState<string | null>(
     null,
@@ -137,7 +142,7 @@ export default function MembersPage() {
               <TableCell>
                 <Select
                   key={m.id}
-                  disabled={pendingRoleUpdate === m.id}
+                  disabled={!isMaintainer || pendingRoleUpdate === m.id}
                   defaultValue={m.role}
                   onValueChange={(role: "MAINTAINER" | "CONTRIBUTOR") =>
                     updateRole.mutate({ memberId: m.id, role })
@@ -154,6 +159,8 @@ export default function MembersPage() {
               </TableCell>
               <TableCell>
                 <Button
+                  disabled={!isMaintainer || pendingRoleUpdate === m.id}
+                  className={`${(!isMaintainer || pendingRoleUpdate === m.id) && "cursor-not-allowed"}`}
                   variant="destructive"
                   size="sm"
                   onClick={() => {
@@ -196,7 +203,11 @@ export default function MembersPage() {
                   Tasks for
                   {members.find((m) => m.id === selectedMemberId)?.user.name}
                 </CardTitle>
-                <CreateTasksDialog view="table" />
+                <CreateTasksDialog
+                  assigneeId={selectedMemberId}
+                  view="table"
+                  isMaintainer={isMaintainer}
+                />
               </div>
             </CardHeader>
             <CardContent>
@@ -268,6 +279,7 @@ export default function MembersPage() {
                         <TableCell className="space-x-2">
                           <Button
                             size="sm"
+                            disabled={!isMaintainer}
                             onClick={(e) => {
                               e.stopPropagation();
                               setTimeout(() => {
@@ -292,6 +304,7 @@ export default function MembersPage() {
       {selectedMember && (
         <DeleteMemberDialog
           member={selectedMember}
+          projectId={projectId!}
           open={openRemoveMemberDialog}
           onOpenAction={(open: boolean | ((prevState: boolean) => boolean)) => {
             setOpenRemoveMemberDialog(open);

@@ -17,36 +17,87 @@ export const projectRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      try {
-        const normalizedGithubUrl = input.githubUrl.endsWith("/")
-          ? input.githubUrl.slice(0, -1)
-          : input.githubUrl;
-        const backgroundColor = createBackgroundHue();
-        const project = await ctx.db.project.create({
-          data: {
-            githubUrl: normalizedGithubUrl,
-            name: input.name,
-            description: input.description,
-            creatorId: ctx.user.user.id,
-            backgroundColor,
-            members: {
-              create: {
-                userId: ctx.user.user.id,
-                role: "MAINTAINER",
-              },
+      const { db, user } = ctx;
+      const { name, description, githubUrl, githubToken } = input;
+
+      const normalizedGithubUrl = githubUrl.endsWith("/")
+        ? githubUrl.slice(0, -1)
+        : githubUrl;
+
+      const project = await db.project.create({
+        data: {
+          name,
+          description,
+          githubUrl: normalizedGithubUrl,
+          backgroundColor: createBackgroundHue(),
+          creatorId: user.user.id,
+          members: {
+            create: {
+              userId: user.user.id,
+              role: "MAINTAINER",
             },
           },
-        });
-        await indexGithubRepo(project.id, input.githubUrl, input.githubToken);
-        await pollCommits(project.id);
-        return project;
-      } catch (error) {
-        console.log(error);
-        return new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create project",
-        });
-      }
+        },
+      });
+
+      // 🔥 Fire and forget the expensive work
+      void (async () => {
+        const createProgressCallback = async (
+          step: string,
+          progress: number,
+        ) => {
+          try {
+            await db.progress.create({
+              data: {
+                projectId: project.id,
+                step,
+                progress: progress * 100,
+              },
+            });
+          } catch (err) {
+            console.error("Failed to save progress:", err);
+          }
+        };
+
+        const reportProgress = (step: string, progress: number) => {
+          void createProgressCallback(step, progress);
+        };
+
+        try {
+          await indexGithubRepo(
+            project.id,
+            githubUrl,
+            githubToken,
+            reportProgress,
+          );
+          await pollCommits(project.id, reportProgress);
+        } catch (err) {
+          console.error("Background indexing/polling failed", err);
+        }
+      })();
+
+      // ✅ Return the project immediately
+      return project;
+    }),
+  insertProgress: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        step: z.string(),
+        progress: z.number().min(0).max(1),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { projectId, step, progress } = input;
+
+      await ctx.db.progress.create({
+        data: {
+          projectId,
+          step,
+          progress,
+        },
+      });
+      return { success: true };
     }),
   getProject: protectedProcedure
     .input(z.object({ projectId: z.string() }))
@@ -313,7 +364,7 @@ export const projectRouter = createTRPCRouter({
       }
     }),
   removeMember: protectedProcedure
-    .input(z.object({ memberId: z.string() }))
+    .input(z.object({ projectId: z.string(), memberId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       try {
         return await ctx.db.member.delete({
@@ -798,5 +849,118 @@ export const projectRouter = createTRPCRouter({
           message: "Failed to fetch analytics",
         });
       }
+    }),
+  getMyProjectMemberRecords: protectedProcedure.query(async ({ ctx }) => {
+    // ctx.user is populated by your auth middleware in protectedProcedure
+    // Assuming ctx.user.user.id is the actual ID of the User model
+    const currentUserId = ctx.user?.user?.id;
+
+    if (!currentUserId) {
+      // This should technically be caught by protectedProcedure if session/user is not resolved,
+      // but an explicit check is good practice.
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User not authenticated.",
+      });
+    }
+
+    try {
+      const memberRecords = await ctx.db.member.findMany({
+        where: {
+          userId: currentUserId,
+        },
+        select: {
+          id: true, // Crucial: This is the Member.id needed for subscriptions
+          projectId: true, // Useful for context, e.g., mapping memberId to a project
+          role: true, // Might be useful for other client-side logic
+          // user: { select: { id: true, name: true } }, // Optionally include basic user info
+          // project: { select: { id: true, name: true } }, // Optionally include basic project info
+        },
+      });
+
+      return memberRecords;
+    } catch (error) {
+      console.error("Failed to fetch user's project member records:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Could not retrieve your project memberships.",
+      });
+    }
+  }),
+  getMyTasksAcrossProjects: protectedProcedure
+    .input(
+      z
+        .object({
+          // Optional filters could be added here later
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const currentUserId = ctx.user.user.id; // From your session
+
+      const tasks = await ctx.db.task.findMany({
+        where: {
+          assignee: {
+            // Tasks where the assignee (a Member) has the current user's ID
+            userId: currentUserId,
+          },
+          // Example: Exclude DONE tasks by default, can be a filter later
+          // status: {
+          //   notIn: [TaskStatus.DONE],
+          // }
+        },
+        include: {
+          project: true,
+          column:
+            // This is your KanbanColumn, aliased as projectSection previously
+            true,
+          assignee: {
+            include: {
+              user: true,
+            },
+          },
+          createdBy: {
+            include: {
+              user: true,
+            },
+          },
+          // No 'tags' relation in your provided Task model
+        },
+        orderBy: [
+          { endDate: "asc" }, // Due date (endDate)
+          { priority: "desc" },
+          { createdAt: "desc" },
+        ],
+      });
+
+      // Group tasks by project
+      const tasksByProject = tasks.reduce(
+        (acc, task) => {
+          const projectKey = task.projectId;
+          if (!acc[projectKey]) {
+            acc[projectKey] = {
+              projectId: task.project.id,
+              projectName: task.project.name,
+              projectColor: task.project.backgroundColor,
+              tasks: [],
+            };
+          }
+          acc[projectKey].tasks.push(task);
+          return acc;
+        },
+        {} as Record<
+          string,
+          {
+            projectId: string;
+            projectName: string;
+            projectColor: string;
+            tasks: Array<(typeof tasks)[0]>;
+          }
+        >,
+      );
+
+      return Object.values(tasksByProject).sort((a, b) =>
+        a.projectName.localeCompare(b.projectName),
+      );
     }),
 });

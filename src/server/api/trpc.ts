@@ -98,7 +98,6 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 });
 
 const secureMiddleware = t.middleware(async ({ ctx, next }) => {
-  const { ratelimit } = await import("@/lib/rate-limiter");
   const headers = ctx.headers;
 
   const allowedOrigins = [process.env.NEXT_PUBLIC_WEBSITE_URL!];
@@ -108,16 +107,6 @@ const secureMiddleware = t.middleware(async ({ ctx, next }) => {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "Origin not allowed",
-    });
-  }
-
-  const ip = headers.get("x-forwarded-for") ?? "unknown";
-  const { success } = await ratelimit.limit(ip);
-
-  if (!success) {
-    throw new TRPCError({
-      code: "TOO_MANY_REQUESTS",
-      message: "Rate limit exceeded",
     });
   }
 

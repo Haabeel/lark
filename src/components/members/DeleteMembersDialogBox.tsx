@@ -20,8 +20,10 @@ export function DeleteMemberDialog({
   open,
   onOpenAction,
   member,
+  projectId,
 }: {
   open: boolean;
+  projectId: string;
   onOpenAction: (val: boolean) => void;
   member: string;
 }) {
@@ -30,7 +32,7 @@ export function DeleteMemberDialog({
   const [internalOpen, setInternalOpen] = React.useState(open);
   const handleDeleteTask = async () => {
     try {
-      removeMember.mutate({ memberId: member });
+      removeMember.mutate({ memberId: member, projectId: projectId });
       await refetch();
       onOpenAction(false);
     } catch (error) {

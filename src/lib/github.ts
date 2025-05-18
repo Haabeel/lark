@@ -38,38 +38,55 @@ export const getCommitHashes = async (githubUrl: string) => {
   }));
 };
 
-export const pollCommits = async (projectId: string) => {
+type ProgressCallback = (step: string, progress: number) => void;
+export const pollCommits = async (
+  projectId: string,
+  progressCallback?: ProgressCallback,
+) => {
+  if (progressCallback) progressCallback("Fetching project info", 0.5);
   const { project, githubUrl } = await getProject(projectId);
+
+  if (progressCallback) progressCallback("Fetching commits", 0.55);
   const commitHashes = await getCommitHashes(githubUrl);
+
+  if (progressCallback) progressCallback("Filtering new commits", 0.6);
   const unprocessedCommits = await findUnprocessedCommits(
     projectId,
     commitHashes,
   );
+
+  const total = unprocessedCommits.length;
   const summaryResponses = await Promise.allSettled(
-    unprocessedCommits.map((commit) => {
+    unprocessedCommits.map((commit, index) => {
+      if (progressCallback) {
+        progressCallback(
+          `Summarizing ${commit.commitHash}`,
+          0.6 + (index / total) * 0.3,
+        ); // up to 90%
+      }
       return summarizeCommit(githubUrl, commit.commitHash);
     }),
   );
+
   const summaries = summaryResponses.map((response) => {
-    if (response.status === "fulfilled") {
-      return response.value;
-    }
+    if (response.status === "fulfilled") return response.value;
     return "";
   });
+
+  if (progressCallback) progressCallback("Saving to DB", 0.95);
   const commits = await db.commit.createMany({
-    data: summaries.map((summary, index) => {
-      console.log(`processing commit ${index}`);
-      return {
-        projectId: projectId,
-        commitHash: unprocessedCommits[index]?.commitHash ?? "",
-        commitMessage: unprocessedCommits[index]?.commitMessage ?? "",
-        commitAuthorName: unprocessedCommits[index]?.commitAuthorName ?? "",
-        commitAuthorAvatar: unprocessedCommits[index]?.commitAuthorAvatar ?? "",
-        commitDate: unprocessedCommits[index]?.commitDate ?? "",
-        summary: summary ?? "",
-      };
-    }),
+    data: summaries.map((summary, index) => ({
+      projectId: projectId,
+      commitHash: unprocessedCommits[index]?.commitHash ?? "",
+      commitMessage: unprocessedCommits[index]?.commitMessage ?? "",
+      commitAuthorName: unprocessedCommits[index]?.commitAuthorName ?? "",
+      commitAuthorAvatar: unprocessedCommits[index]?.commitAuthorAvatar ?? "",
+      commitDate: unprocessedCommits[index]?.commitDate ?? "",
+      summary: summary ?? "",
+    })),
   });
+
+  if (progressCallback) progressCallback("Done", 1.0);
   return commits;
 };
 

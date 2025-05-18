@@ -8,13 +8,13 @@ import useProject from "@/hooks/useProject";
 import { Dialog, DialogClose, DialogContent, DialogHeader } from "../ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Logo from "../shared/Logo";
-import { askQuestion } from "@/app/(protected)/commits/actions";
 import { readStreamableValue } from "ai/rsc";
 import MDEditor from "@uiw/react-md-editor";
 import CodeReferences from "./CodeReferences";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import useRefetch from "@/hooks/useRefetch";
+import { askQuestion } from "@/app/(protected)/dashboard/[projectId]/commits/actions";
 
 const AskQuestionCard = () => {
   const { project } = useProject();

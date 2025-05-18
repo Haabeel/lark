@@ -13,6 +13,7 @@ import CreateTasksDialog from "./create-tasks-dialog";
 interface KanbanColumnHeaderProps {
   board: TaskStatus;
   taskCount: number;
+  isMaintainer: boolean;
 }
 
 const statusIconMap: Record<TaskStatus, React.ReactNode> = {
@@ -26,7 +27,11 @@ const statusIconMap: Record<TaskStatus, React.ReactNode> = {
   [TaskStatus.DONE]: <CircleCheckIcon className="size-[18px] text-green-400" />,
 };
 
-const KanbanColumnHeader = ({ taskCount, board }: KanbanColumnHeaderProps) => {
+const KanbanColumnHeader = ({
+  taskCount,
+  board,
+  isMaintainer,
+}: KanbanColumnHeaderProps) => {
   const icon = statusIconMap[board];
   return (
     <div className="flex items-center justify-between px-2 py-1.5">
@@ -37,7 +42,11 @@ const KanbanColumnHeader = ({ taskCount, board }: KanbanColumnHeaderProps) => {
           {taskCount}
         </div>
       </div>
-      <CreateTasksDialog view="kanban" status={board} />
+      <CreateTasksDialog
+        isMaintainer={isMaintainer}
+        view="kanban"
+        status={board}
+      />
     </div>
   );
 };

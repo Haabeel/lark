@@ -1,12 +1,14 @@
 "use client";
 
 import LogoLoader from "@/components/shared/LogoLoader";
-import useProject, { type UseProjectResult } from "@/hooks/useProject";
+import useProject from "@/hooks/useProject";
 import { type Session } from "@/lib/auth";
+import { type AppRouter } from "@/server/api/root";
 import { api } from "@/trpc/react";
 import { type Prisma } from "@prisma/client";
+import { type inferRouterOutputs } from "@trpc/server";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, type Dispatch, type SetStateAction } from "react";
+import React, { useEffect } from "react";
 
 interface Props {
   children: React.ReactNode;
@@ -25,10 +27,12 @@ export type User = Prisma.UserGetPayload<{
 type ContextType = {
   session: Session | null | undefined;
   user: User | null | undefined;
-  projects: UseProjectResult["projects"];
-  project: UseProjectResult["project"];
+  projects: inferRouterOutputs<AppRouter>["project"]["getProjects"] | undefined;
+  project:
+    | inferRouterOutputs<AppRouter>["project"]["getProjects"][number]
+    | undefined;
   selectedProject: string;
-  setSelectedProject: Dispatch<SetStateAction<string>>;
+  setSelectedProject: (newProjectId: string) => void;
 };
 
 const dashboardContext = React.createContext<ContextType | null>(null);
@@ -71,7 +75,7 @@ const DashboardProvider = ({ children }: Props) => {
         user,
         projects,
         project,
-        selectedProject,
+        selectedProject: selectedProject ?? "",
         setSelectedProject,
       }}
     >

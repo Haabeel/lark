@@ -98,23 +98,23 @@ const Navbar = ({ name, session, project }: Props) => {
               </p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => {
-                /* handle profile view */
-              }}
-              className="flex items-center gap-2"
-            >
-              <UserIcon />
-              <span>Profile</span>
+            <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
+              <Link
+                href={`/dashboard/profile`}
+                className="flex w-full items-center gap-2"
+              >
+                <UserIcon />
+                <span>Profile</span>
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                /* handle settings view */
-              }}
-              className="flex items-center gap-2"
-            >
-              <Settings />
-              <span> Settings</span>
+            <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
+              <Link
+                href={`/dashboard/settings`}
+                className="flex w-full items-center gap-2"
+              >
+                <Settings />
+                <span> Settings</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {project?.members.find(

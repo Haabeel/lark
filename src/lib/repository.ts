@@ -29,32 +29,40 @@ type EmbeddingResult = {
   fileName: string;
 };
 
+type ProgressCallback = (step: string, progress: number) => void;
 export const indexGithubRepo = async (
   projectId: string,
   githubUrl: string,
   githubToken?: string,
+  progressCallback?: ProgressCallback,
 ) => {
+  if (progressCallback) progressCallback("Loading repo", 0.05);
   const docs = await loadRepo(githubUrl, githubToken);
-  const allEmbeddings: EmbeddingResult[] = await generateEmbeddings(docs);
+
+  if (progressCallback) progressCallback("Generating embeddings", 0.1);
+  const allEmbeddings: EmbeddingResult[] = await generateEmbeddings(
+    docs,
+    progressCallback,
+  );
+
+  let i = 0;
+  const total = allEmbeddings.length;
   await Promise.allSettled(
     allEmbeddings.map(
       async (embedding: EmbeddingResult, index): Promise<void> => {
-        console.log(`Indexing ${index + 1} of ${allEmbeddings.length}`);
         if (!embedding) return;
         const { summary, embedding: emb, sourceCode, fileName } = embedding;
         const sourceCodeEmbedding = await db.sourceCodeEmbedding.create({
-          data: {
-            projectId,
-            summary,
-            sourceCode,
-            fileName,
-          },
+          data: { projectId, summary, sourceCode, fileName },
         });
         await db.$executeRaw`
-    UPDATE "SourceCodeEmbedding"
-    SET "summaryEmbedding" = ${emb}::vector
-    WHERE "id" = ${sourceCodeEmbedding.id}
-    `;
+          UPDATE "SourceCodeEmbedding"
+          SET "summaryEmbedding" = ${emb}::vector
+          WHERE "id" = ${sourceCodeEmbedding.id}
+        `;
+        i++;
+        if (progressCallback)
+          progressCallback(`Indexing ${fileName}`, 0.1 + (i / total) * 0.4); // up to 50%
       },
     ),
   );
@@ -62,6 +70,7 @@ export const indexGithubRepo = async (
 
 const generateEmbeddings = async (
   docs: Document[],
+  progressCallback?: ProgressCallback,
 ): Promise<EmbeddingResult[]> => {
   const results: EmbeddingResult[] = [];
 
@@ -78,8 +87,14 @@ const generateEmbeddings = async (
     });
 
     index++;
+    if (progressCallback)
+      progressCallback(
+        `Embedding ${doc.metadata.source}`,
+        (index / docs.length) * 0.3,
+      ); // up to 30%
+
     if (index % 10 === 0) {
-      console.log("⏳ Waiting 1 minute to respect rate limits...");
+      if (progressCallback) progressCallback("Pausing for rate limit", 0.3);
       await new Promise((resolve) => setTimeout(resolve, 60_000));
     }
   }

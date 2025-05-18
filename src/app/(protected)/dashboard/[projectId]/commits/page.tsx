@@ -8,8 +8,7 @@ import AskQuestionCard from "@/components/dashboard/AskQuestionCard";
 const CommitsPage = () => {
   const dashboard = useDashboard();
   if (!dashboard) return null;
-  const { session, project, projects, selectedProject, setSelectedProject } =
-    dashboard;
+  const { projects } = dashboard;
   if (!projects || projects.length === 0) return <ProjectPlaceholder />;
   return (
     <>

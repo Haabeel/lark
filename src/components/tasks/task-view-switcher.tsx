@@ -65,6 +65,7 @@ function filterTasks(tasks: Column[], options: FilterOptions): Column[] {
   });
 }
 const TaskViewSwitcher = () => {
+  const dashboard = useDashboard();
   const [view, setView] = useQueryState("view", {
     defaultValue: "table",
   });
@@ -93,10 +94,13 @@ const TaskViewSwitcher = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [reorderTasks],
   );
-  const dashboard = useDashboard();
   if (dashboard == null) return null;
 
   const { selectedProject, session, user } = dashboard;
+  const project = dashboard?.project;
+  const isMaintainer =
+    project?.members.find((member) => member.userId === user?.id)?.role ===
+    "MAINTAINER";
   const { data: tasks, isLoading } = api.project.getTasks.useQuery({
     projectId: selectedProject,
   });
@@ -132,7 +136,7 @@ const TaskViewSwitcher = () => {
               Calendar
             </TabsTrigger>
           </TabsList>
-          <CreateTasksDialog view="table" />
+          <CreateTasksDialog isMaintainer={isMaintainer} view="table" />
         </div>
         {!isLoading && (
           <TaskFilters
@@ -158,6 +162,7 @@ const TaskViewSwitcher = () => {
           <TabsContent value="kanban" className="mt-2">
             {!isLoading && user ? (
               <DataKanban
+                isMaintainer={isMaintainer}
                 data={tasks ?? []}
                 onChange={onKanbanChange}
                 filters={filters}

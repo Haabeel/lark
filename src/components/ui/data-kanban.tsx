@@ -24,6 +24,7 @@ type TaskState = Record<TaskStatus, Column[]>;
 
 interface DataKanbanProps {
   data: Column[];
+  isMaintainer: boolean;
   filters: FilterOptions;
   onChange: (
     tasks: {
@@ -35,7 +36,13 @@ interface DataKanbanProps {
   user: User;
 }
 
-const DataKanban = ({ data, filters, onChange, user }: DataKanbanProps) => {
+const DataKanban = ({
+  data,
+  filters,
+  onChange,
+  user,
+  isMaintainer,
+}: DataKanbanProps) => {
   const [allTasks, setAllTasks] = React.useState<TaskState>(() => {
     const initial: TaskState = {
       [TaskStatus.BACKLOG]: [],
@@ -254,9 +261,10 @@ const DataKanban = ({ data, filters, onChange, user }: DataKanbanProps) => {
           >
             <KanbanColumnHeader
               board={board}
+              isMaintainer={isMaintainer}
               taskCount={filteredTasks[board].length}
             />
-            <Droppable droppableId={board}>
+            <Droppable isDropDisabled={!isMaintainer} droppableId={board}>
               {(provided) => (
                 <div
                   {...provided.droppableProps}
@@ -266,6 +274,7 @@ const DataKanban = ({ data, filters, onChange, user }: DataKanbanProps) => {
                   {filteredTasks[board].map((task, index) => (
                     <Draggable
                       key={task.id}
+                      isDragDisabled={!isMaintainer}
                       draggableId={task.id}
                       index={index}
                     >

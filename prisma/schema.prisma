@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
@@ -9,33 +6,35 @@ generator client {
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
-  extensions = [vector]
+  extensions = [uuid_ossp(map: "uuid-ossp", schema: "extensions"), vector]
 }
 
 model User {
-  id             String     @id
-  name           String
-  email          String
-  firstName      String
-  lastName       String?
-  emailVerified  Boolean
-  image          String?
-  createdAt      DateTime
-  updatedAt      DateTime
-  sessions       Session[]
-  accounts       Account[]
-  projects       Project[]  @relation("CreatedProjects")
-  memberships    Member[]
-  questionsAsked Question[]
+  id                       String          @id
+  name                     String
+  email                    String          @unique
+  firstName                String
+  lastName                 String?
+  emailVerified            Boolean
+  image                    String?
+  createdAt                DateTime
+  updatedAt                DateTime
+  projects                 Project[]       @relation("CreatedProjects")
+  questionsAsked           Question[]
+  accounts                 Account[]
+  memberships              Member[]
+  sessions                 Session[]
+  createdChannels          Channel[]
+  messagesSent             Message[]
+  directChannelMemberships ChannelMember[]
 
-  @@unique([email])
   @@map("user")
 }
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime
   updatedAt DateTime
   ipAddress String?
@@ -43,7 +42,6 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@map("session")
 }
 
@@ -52,7 +50,6 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -62,6 +59,7 @@ model Account {
   password              String?
   createdAt             DateTime
   updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("account")
 }
@@ -78,134 +76,119 @@ model Verification {
 }
 
 model Project {
-  id              String    @id @default(cuid())
-  name            String
-  description     String?
-  backgroundColor String
-  creatorId       String
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  githubUrl       String
-  deletedAt       DateTime?
-  creator         User      @relation(fields: [creatorId], references: [id], name: "CreatedProjects", onDelete: Cascade)
-
-  members             Member[]
+  id                  String                @id @default(cuid())
+  name                String
+  description         String?
+  creatorId           String
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  githubUrl           String
+  deletedAt           DateTime?
+  backgroundColor     String
   Commit              Commit[]
+  creator             User                  @relation("CreatedProjects", fields: [creatorId], references: [id], onDelete: Cascade)
+  savedQuestions      Question[]
   SourceCodeEmbedding SourceCodeEmbedding[]
+  KanbanColumn        KanbanColumn[]
+  members             Member[]
   tasks               Task[]
 
-  savedQuestions Question[]
-  KanbanColumn   KanbanColumn[]
+  channels Channel[]
 }
 
 model Member {
-  id           String      @id @default(cuid())
+  id           String          @id @default(cuid())
   userId       String
   projectId    String
-  role         ProjectRole @default(CONTRIBUTOR)
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  project      Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  tasks        Task[]      @relation("AssignedTasks")
-  tasksCreated Task[]      @relation("CreatedTasks")
+  role         ProjectRole     @default(CONTRIBUTOR)
+  project      Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks        Task[]          @relation("AssignedTasks")
+  tasksCreated Task[]          @relation("CreatedTasks")
+  channels     ChannelMember[]
 
   @@unique([userId, projectId])
   @@map("member")
 }
 
-enum ProjectRole {
-  MAINTAINER
-  CONTRIBUTOR
-}
-
 model Commit {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
+  id                 String   @id @default(cuid())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  projectId          String
   commitMessage      String
   commitHash         String
   commitAuthorName   String
   commitAuthorAvatar String
   commitDate         DateTime
-
-  summary String
+  summary            String
+  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model SourceCodeEmbedding {
-  id String @id @default(cuid())
-
-  summaryEmbedding Unsupported("vector(768)")?
+  id               String                 @id @default(cuid())
+  summaryEmbedding Unsupported("vector")?
   sourceCode       String
   fileName         String
   summary          String
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId        String
+  project          Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt        DateTime?              @default(now())
+  updatedAt        DateTime?              @updatedAt
 }
 
 model Question {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  question String
-  answer   String
-
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  question       String
+  answer         String
   filesReference Json?
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId      String
+  userId         String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Task {
-  id          String       @id @default(cuid())
+  id          String        @id @default(cuid())
   title       String
   description String?
-  status      TaskStatus   @default(TODO)
-  priority    TaskPriority @default(MEDIUM)
+  status      TaskStatus    @default(TODO)
+  priority    TaskPriority  @default(MEDIUM)
   order       Int
-
-  startDate DateTime @db.Timestamp(6)
-  endDate   DateTime @db.Timestamp(6)
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  assigneeId String?
-  assignee   Member? @relation("AssignedTasks", fields: [assigneeId], references: [id], onDelete: Cascade)
-
+  startDate   DateTime      @db.Timestamp(6)
+  endDate     DateTime      @db.Timestamp(6)
+  projectId   String
+  assigneeId  String?
   createdById String
-  createdBy   Member @relation("CreatedTasks", fields: [createdById], references: [id], onDelete: Cascade)
-
-  columnId String?
-  column   KanbanColumn? @relation(fields: [columnId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  columnId    String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  assignee    Member?       @relation("AssignedTasks", fields: [assigneeId], references: [id], onDelete: Cascade)
+  column      KanbanColumn? @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  createdBy   Member        @relation("CreatedTasks", fields: [createdById], references: [id], onDelete: Cascade)
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("task")
 }
 
 model KanbanColumn {
-  id    String @id @default(cuid())
-  name  String
-  order Int
-
+  id        String   @id @default(cuid())
+  name      String
+  order     Int
   projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  tasks Task[]
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks     Task[]
 
   @@map("kanban_column")
+}
+
+enum ProjectRole {
+  MAINTAINER
+  CONTRIBUTOR
 }
 
 enum TaskStatus {
@@ -219,4 +202,82 @@ enum TaskPriority {
   LOW
   MEDIUM
   HIGH
+}
+
+model Channel {
+  id        String   @id @default(cuid())
+  name      String? // e.g. "general"; null for DMs
+  isDm      Boolean  @default(false)
+  creatorId String
+  projectId String? // null for DMs
+  createdAt DateTime @default(now())
+
+  creator  User            @relation(fields: [creatorId], references: [id])
+  project  Project?        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  members  ChannelMember[]
+  messages Message[]
+
+  @@map("channel")
+}
+
+model ChannelMember {
+  id        String   @id @default(cuid())
+  channelId String
+  memberId  String? // links to Member
+  userId    String? // links to User (for DMs)
+  joinedAt  DateTime @default(now())
+
+  channel Channel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  member  Member?   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  user    User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Message Message[]
+
+  @@unique([channelId, memberId])
+  @@unique([channelId, userId])
+  @@map("channel_member")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  channelId String
+  senderId  String // link to User (for DMs)
+  memberId  String? // nullable for system or non-project DMs
+  content   String
+  createdAt DateTime @default(now())
+
+  channel     Channel        @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  sender      User           @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  member      ChannelMember? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  attachments Attachment[]
+
+  @@index([channelId, createdAt])
+  @@map("message")
+}
+
+model Attachment {
+  id        String         @id @default(cuid())
+  messageId String
+  type      AttachmentType
+  url       String
+  fileName  String?
+  fileSize  Int?
+  createdAt DateTime       @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("attachment")
+}
+
+enum AttachmentType {
+  IMAGE
+  VIDEO
+  FILE
+}
+
+model Progress {
+  id        String   @id @default(cuid())
+  projectId String
+  step      String
+  progress  Int
+  createdAt DateTime @default(now())
 }

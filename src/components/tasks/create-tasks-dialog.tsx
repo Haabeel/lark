@@ -44,16 +44,20 @@ type TaskFormData = z.infer<typeof taskSchema>;
 type CreateTasksDialogProps =
   | {
       className?: string;
+      isMaintainer: boolean;
       view: "table" | "calendar";
+      assigneeId?: string;
     }
   | {
       className?: string;
+      isMaintainer: boolean;
       view: "kanban";
       status: TaskStatus;
     };
 
 const CreateTasksDialog = (props: CreateTasksDialogProps) => {
-  const { className, view } = props;
+  const { className, view, isMaintainer } = props;
+  const assigneeId = view === "table" ? props.assigneeId : undefined;
   const status = view === "kanban" ? props.status : TaskStatus.TODO;
   const dashboard = useDashboard();
   const refetch = useRefetch();
@@ -69,7 +73,7 @@ const CreateTasksDialog = (props: CreateTasksDialogProps) => {
         title: "",
         description: "",
         projectId: selectedProjectId ?? dashboard?.selectedProject,
-        assigneeId: "",
+        assigneeId: assigneeId ?? "",
         startDate: new Date(),
         endDate: new Date(),
         status: status,
@@ -122,6 +126,7 @@ const CreateTasksDialog = (props: CreateTasksDialogProps) => {
       <DialogTrigger asChild>
         {view === "table" ? (
           <Button
+            disabled={!isMaintainer}
             size="sm"
             className={cn(
               "w-full bg-foundation-purple-400 text-neutral-100 lg:w-auto",
@@ -133,6 +138,7 @@ const CreateTasksDialog = (props: CreateTasksDialogProps) => {
           </Button>
         ) : (
           <Button
+            disabled={!isMaintainer}
             onClick={() => {
               console.log("clicked");
             }}

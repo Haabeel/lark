@@ -1,9 +1,12 @@
 "use client";
+import { FeaturesSection } from "@/components/landing/FeaturesSection";
+import { Footer } from "@/components/landing/Footer";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { Navbar } from "@/components/landing/Navbar";
+import { PricingCtaSection } from "@/components/landing/PricingCTASection";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth-client";
 import { api } from "@/trpc/react";
-import Navbar from "../components/Navbar";
-import { CreateProjectForm } from "@/components/CreateProject";
 
 export default function Home() {
   const { data: session, isLoading, refetch } = api.auth.getSession.useQuery();
@@ -17,18 +20,12 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50">
       <Navbar />
-      <section className="h-full w-screen overflow-x-hidden">
-        {isLoading && <p>Loading...</p>}
-        {session && (
-          <div>
-            <p>{session.user.id}</p>
-            <Button onClick={handleSignOut}>Sign out</Button>
-            <CreateProjectForm />
-          </div>
-        )}
-      </section>
-    </main>
+      <HeroSection />
+      <FeaturesSection />
+      <PricingCtaSection />
+      <Footer />
+    </div>
   );
 }

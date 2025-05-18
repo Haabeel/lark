@@ -7,7 +7,10 @@ import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-
+import { RealtimeChannelProvider } from "@/providers/RealTimeProvider";
+import { ProgressProvider } from "@/providers/ProgressProvider";
+import { GlobalProgressToast } from "@/components/shared/GlobalToaster";
+import { ChannelProvider } from "@/providers/ChannelProvider";
 const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
@@ -27,6 +30,7 @@ export default function RootLayout({
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body
         className={`${dmSans.className} flex min-h-screen w-screen flex-col overflow-x-hidden bg-foundation-neutral-200 dark:bg-foundation-blue-800 dark:text-foundation-neutral-200`}
+        suppressHydrationWarning={true}
       >
         <TRPCReactProvider>
           <ThemeProvider
@@ -36,6 +40,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <NuqsAdapter>{children}</NuqsAdapter>
+            <GlobalProgressToast />
           </ThemeProvider>
         </TRPCReactProvider>
         <Toaster richColors />
