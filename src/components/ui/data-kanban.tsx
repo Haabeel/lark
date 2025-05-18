@@ -140,32 +140,6 @@ const DataKanban = ({
         const fullSource = [...newTasks[sourceStatus]];
         const fullDestination = [...newTasks[destinationStatus]];
 
-        // Filtered source/destination columns based on active filters
-        const filteredSource = filters
-          ? fullSource.filter((task) => {
-              if (filters.priority && task.priority !== filters.priority)
-                return false;
-              if (filters.assignee && task.assigneeId !== filters.assignee)
-                return false;
-              if (filters.dateRange) {
-                const start = new Date(task.startDate);
-                const end = new Date(task.endDate);
-                if (
-                  start < filters.dateRange.from ||
-                  end > filters.dateRange.to
-                )
-                  return false;
-              }
-              if (
-                filters.dueInDays &&
-                new Date(task.endDate).getTime() >
-                  Date.now() + filters.dueInDays * 86400000
-              )
-                return false;
-              return true;
-            })
-          : fullSource;
-
         const filteredDestination = filters
           ? fullDestination.filter((task) => {
               if (filters.priority && task.priority !== filters.priority)

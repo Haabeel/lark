@@ -35,14 +35,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import useRefetch from "@/hooks/useRefetch";
-import { cn, initials, createBackgroundHue } from "@/lib/utils";
+import { initials, createBackgroundHue } from "@/lib/utils";
 import { useDashboard } from "@/providers/DashboardProvider";
 import { type AppRouter } from "@/server/api/root";
 import { api } from "@/trpc/react";
 import { type inferRouterOutputs } from "@trpc/server";
 import MDEditor from "@uiw/react-md-editor";
 import { Delete } from "lucide-react";
-import Image from "next/image";
 import React from "react";
 import { toast } from "sonner";
 

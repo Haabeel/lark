@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useDashboard } from "@/providers/DashboardProvider";
@@ -52,13 +52,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge"; // For displaying roles or status
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
 
 const projectSchema = z.object({
@@ -92,7 +85,6 @@ export default function ProjectPage() {
   const dashboard = useDashboard();
   const projectId = dashboard?.selectedProject;
   const project = dashboard?.project;
-  const projects = dashboard?.projects;
   const user = dashboard?.user; // This is the authenticated user from your session
 
   const [isEditing, setIsEditing] = useState(false);
@@ -104,7 +96,7 @@ export default function ProjectPage() {
   const utils = api.useContext();
 
   const updateProjectMutation = api.project.updateProject.useMutation({
-    onSuccess: (updatedProjectData) => {
+    onSuccess: () => {
       toast.success("Project updated successfully!");
       setIsEditing(false);
       void utils.project.getProject.invalidate({ projectId }); // Invalidate specific query
@@ -194,6 +186,7 @@ export default function ProjectPage() {
     const match = /hsl\(\s*(\d+),\s*(\d+)%?,\s*(\d+)%?\s*\)/i.exec(hsl);
     if (!match) return "#000000"; // fallback if format is wrong
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, hStr, sStr, lStr] = match;
     if (!hStr || !sStr || !lStr) return "#000000"; // fallback if format is wrong
     const h = parseInt(hStr, 10);

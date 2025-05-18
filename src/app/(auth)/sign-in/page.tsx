@@ -112,7 +112,7 @@ const SignIn = () => {
                 <Separator className="shrink" />
               </div>
               <div className={`flex w-full justify-between gap-3`}>
-                <SocialProviders type="sign in" />
+                <SocialProviders />
               </div>
             </form>
           </Form>

@@ -2,11 +2,13 @@ import { api } from "@/trpc/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { channelId: string } },
+  { params: paramsPromise }: { params: Promise<{ channelId: string }> }, // params is a Promise
 ) {
   try {
+    const params = await paramsPromise; // Await the promise to get the actual params object
+    const { channelId } = params;
     const messages = await api.chat.getMessages({
-      channelId: params.channelId,
+      channelId: channelId,
     });
     return Response.json(messages);
   } catch (err) {

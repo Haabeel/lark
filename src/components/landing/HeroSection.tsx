@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button"; // from shadcn/ui
-import { MoveRight, PlayCircle } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button"; // from shadcn/ui
+import { MoveRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // For Aceternity UI Background Gradient Animation:

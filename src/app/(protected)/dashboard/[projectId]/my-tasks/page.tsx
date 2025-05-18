@@ -1,25 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { api } from "@/trpc/react";
+import { type Column } from "@/components/tasks/columns";
+import ViewTaskDialog from "@/components/tasks/ViewTaskDialog";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
@@ -27,27 +18,19 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Loader2,
-  CalendarDays,
-  UserCircle,
-  ChevronsRight,
-  AlertTriangle,
-  FlagTriangleRight,
-  ListChecks,
-  Folders,
-  Inbox, // For project section / kanban column
-} from "lucide-react";
-import { format, isPast, isToday, isFuture, differenceInDays } from "date-fns";
+import { cn, initials } from "@/lib/utils";
+import { api } from "@/trpc/react";
 import { TaskPriority, TaskStatus } from "@prisma/client"; // Your Prisma enums
-import { initials, cn } from "@/lib/utils";
-import ViewTaskDialog from "@/components/tasks/ViewTaskDialog";
-import { inferRouterOutputs } from "@trpc/server";
-import { AppRouter } from "@/server/api/root";
-import { Column } from "@/components/tasks/columns";
-
-type Task =
-  inferRouterOutputs<AppRouter>["project"]["getMyTasksAcrossProjects"][number];
+import { differenceInDays, format, isFuture, isPast, isToday } from "date-fns";
+import {
+  AlertTriangle,
+  CalendarDays,
+  ChevronsRight,
+  Folders,
+  Inbox,
+  ListChecks,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 
 // Helper function to get badge variant based on status
 const getStatusVariant = (
@@ -145,7 +128,6 @@ export default function MyTasksPage() {
     data: projectsWithTasks,
     isLoading,
     isError,
-    error,
   } = api.project.getMyTasksAcrossProjects.useQuery();
 
   const [dialogOpen, setDialogOpen] = useState(false);

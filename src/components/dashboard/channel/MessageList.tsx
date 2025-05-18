@@ -7,7 +7,7 @@ import { format, isToday, isYesterday, formatDate } from "date-fns";
 import { useDashboard } from "@/providers/DashboardProvider";
 import { initials } from "@/lib/utils";
 import {
-  Attachment,
+  type Attachment,
   AttachmentType,
   type Channel,
   type Message as PrismaMessage,

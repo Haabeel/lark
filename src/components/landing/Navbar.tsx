@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Zap, LayoutDashboard } from "lucide-react"; // Added LayoutDashboard
+import { Menu, X, LayoutDashboard } from "lucide-react"; // Added LayoutDashboard
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client"; // Your adapted useSession hook
 import Logo from "../shared/Logo";

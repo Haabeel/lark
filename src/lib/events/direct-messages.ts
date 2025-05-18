@@ -7,10 +7,7 @@ import {
   REALTIME_SUBSCRIBE_STATES,
 } from "@supabase/supabase-js";
 // Assuming your Prisma client exports these types, adjust if necessary
-import type {
-  Channel as PrismaChannel,
-  ChannelMember as PrismaChannelMember,
-} from "@prisma/client";
+import type { ChannelMember as PrismaChannelMember } from "@prisma/client";
 
 // Type for the callback when a new DM is detected.
 // It passes the ID of the newly relevant DM channel.

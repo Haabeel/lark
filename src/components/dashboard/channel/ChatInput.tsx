@@ -134,10 +134,9 @@ const ChatInput = ({ channelId }: ChatInputProps) => {
           const uniqueFileName = `${crypto.randomUUID()}.${fileExt}`;
           const filePath = `${channelId}/${uniqueFileName}`; // Organize by channel
 
-          const { data: uploadData, error: uploadError } =
-            await supabase.storage
-              .from("message-attachments") // Your bucket name
-              .upload(filePath, file, { cacheControl: "3600", upsert: false });
+          const { error: uploadError } = await supabase.storage
+            .from("message-attachments") // Your bucket name
+            .upload(filePath, file, { cacheControl: "3600", upsert: false });
 
           if (uploadError) {
             // If one file fails, we stop and report error for that file

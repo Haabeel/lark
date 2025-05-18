@@ -3,15 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Hash, MessageSquare, Plus, Users, Loader2 } from "lucide-react"; // Added Users, Loader2
-import {
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
+import { SidebarContent } from "@/components/ui/sidebar";
 import React, { useState, useMemo } from "react"; // Added useMemo
 import { type Channel as PrismaChannel } from "@prisma/client"; // Renamed to avoid conflict
 import { Button } from "@/components/ui/button";

@@ -1,10 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { Hash } from "lucide-react"; // Assuming you still want the channel intro part
 
 const MessageListSkeleton = ({
   count = 5, // Number of skeleton message groups to show
   isDM = false, // To conditionally render the channel intro
-  channelName = "Loading Channel",
 }: {
   count?: number;
   isDM?: boolean;

@@ -36,6 +36,7 @@ export const GlobalProgressToast = () => {
       toast.dismiss("project-progress");
       toast.success("Project processing completed!");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress]);
 
   return null;

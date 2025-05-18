@@ -7,9 +7,14 @@ import { AnimatedTooltip } from "../ui/animated-tooltip";
 
 const TeamMembers = ({ name }: { name: string | undefined }) => {
   const { selectedProject } = useProject();
-  const { data: members } = api.project.getTeamMembers.useQuery({
-    projectId: selectedProject,
-  });
+  const { data: members } = api.project.getTeamMembers.useQuery(
+    {
+      projectId: selectedProject!,
+    },
+    {
+      enabled: !!selectedProject,
+    },
+  );
   const items = members?.map((member, idx) => ({
     id: idx + 1,
     name: member.user.name === name ? name + " (you)" : member.user.name,

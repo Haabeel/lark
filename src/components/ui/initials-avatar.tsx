@@ -10,7 +10,6 @@ type AvatarProps = {
 
 const Avatar: React.FC<AvatarProps> = ({
   name,
-  size = "3rem",
   className = "",
   backgroundColor,
 }) => {

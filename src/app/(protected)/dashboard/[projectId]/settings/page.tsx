@@ -1,14 +1,18 @@
 // app/dashboard/settings/page.tsx
 "use client";
 
-import { useState, useEffect, type FormEvent } from "react";
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import {
   Card,
   CardContent,
@@ -19,45 +23,26 @@ import {
 } from "@/components/ui/card";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { toast } from "sonner";
-import {
-  Loader2,
-  Mail,
-  KeyRound,
-  ExternalLink,
-  Trash2,
-  Eye,
-  EyeOff,
-  AlertTriangle,
-} from "lucide-react";
-import {
-  useSession,
-  authClient, // Using the core client directly for methods
-  // Or import specific methods if you prefer:
-  // updatePassword, linkSocial, unlinkAccount, deleteUser, getOAuthSignInURL, emailOtp
-} from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { authClient, useSession } from "@/lib/auth-client";
+import { useDashboard } from "@/providers/DashboardProvider";
 import { api } from "@/trpc/react";
-import { OAuthProvider } from "better-auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 
 type Provider =
   | "github"
@@ -114,8 +99,8 @@ export default function SettingsPage() {
     error: sessionError,
     refetch: refetchSession,
   } = useSession();
-  const router = useRouter();
-
+  const dashboard = useDashboard();
+  const selectedProjectId = dashboard?.selectedProject;
   const [pageLevelLoading, setPageLevelLoading] = useState(false); // For actions like link/unlink OAuth
 
   // Change Email States
@@ -173,7 +158,7 @@ export default function SettingsPage() {
       resetEmailForm();
       setIsChangeEmailDialogOpen(false);
       // Session won't update until the new email is verified and change is finalized.
-    } catch (error) {
+    } catch {
       toast.error(
         "Failed to initiate email change. Does the email already exist?",
       );
@@ -195,12 +180,12 @@ export default function SettingsPage() {
       toast.success("Password changed successfully!");
       resetPasswordForm();
       setIsChangePasswordDialogOpen(false);
-    } catch (error) {
+    } catch {
       toast.error("Failed to change password. Check current password.");
     }
   };
 
-  const handleLinkOAuth = async (provider: string) => {
+  const handleLinkOAuth = async (provider: Provider) => {
     setPageLevelLoading(true);
     try {
       if (!authClient.linkSocial) {
@@ -208,13 +193,15 @@ export default function SettingsPage() {
         setPageLevelLoading(false);
         return;
       }
-      const { data, error } = await authClient.linkSocial({
+      const { error } = await authClient.linkSocial({
         provider,
-        options: { type: "link" },
+        callbackURL: selectedProjectId
+          ? `${window.location.origin}/dashboard/${selectedProjectId}/settings`
+          : `${window.location.origin}/dashboard`,
       });
       if (error) throw new Error(`Could not get ${provider} link URL.`);
       // No need to setPageLevelLoading(false) here as page will redirect
-    } catch (error) {
+    } catch {
       toast.error(`Failed to link ${provider}.`);
       setPageLevelLoading(false);
     }
@@ -237,7 +224,7 @@ export default function SettingsPage() {
       await authClient.unlinkAccount({ providerId: provider });
       toast.success(`${provider} account unlinked successfully!`);
       await refetchSession();
-    } catch (error) {
+    } catch {
       toast.error(`Failed to unlink ${provider}.`);
     } finally {
       setPageLevelLoading(false);
@@ -261,7 +248,7 @@ export default function SettingsPage() {
       setIsDeleteAccountDialogOpen(false);
       // Better Auth should handle session invalidation and redirect.
       // Manually calling router.push('/') or similar might be needed if BA doesn't redirect.
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete account.");
       setPageLevelLoading(false);
     }
@@ -277,7 +264,11 @@ export default function SettingsPage() {
   const { data: user } = api.user.getUser.useQuery();
   const userLinkedProviders = user?.accounts.map((u) => u.providerId) ?? [];
   // Define these based on what you configured in Better Auth server-side
-  const configuredOAuthProviders = ["google", "github", "microsoft"]; // Example
+  const configuredOAuthProviders: Provider[] = [
+    "google",
+    "github",
+    "microsoft",
+  ]; // Example
 
   const isPasswordAuthEnabled = userLinkedProviders.includes("credential");
 

@@ -43,7 +43,7 @@ export const AnimatedTooltip = ({
   };
   return (
     <>
-      {items.reverse().map((item, idx) => (
+      {items.reverse().map((item) => (
         <div
           className="group relative -mr-4"
           key={item.name}

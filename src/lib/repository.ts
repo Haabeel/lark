@@ -48,23 +48,21 @@ export const indexGithubRepo = async (
   let i = 0;
   const total = allEmbeddings.length;
   await Promise.allSettled(
-    allEmbeddings.map(
-      async (embedding: EmbeddingResult, index): Promise<void> => {
-        if (!embedding) return;
-        const { summary, embedding: emb, sourceCode, fileName } = embedding;
-        const sourceCodeEmbedding = await db.sourceCodeEmbedding.create({
-          data: { projectId, summary, sourceCode, fileName },
-        });
-        await db.$executeRaw`
+    allEmbeddings.map(async (embedding: EmbeddingResult): Promise<void> => {
+      if (!embedding) return;
+      const { summary, embedding: emb, sourceCode, fileName } = embedding;
+      const sourceCodeEmbedding = await db.sourceCodeEmbedding.create({
+        data: { projectId, summary, sourceCode, fileName },
+      });
+      await db.$executeRaw`
           UPDATE "SourceCodeEmbedding"
           SET "summaryEmbedding" = ${emb}::vector
           WHERE "id" = ${sourceCodeEmbedding.id}
         `;
-        i++;
-        if (progressCallback)
-          progressCallback(`Indexing ${fileName}`, 0.1 + (i / total) * 0.4); // up to 50%
-      },
-    ),
+      i++;
+      if (progressCallback)
+        progressCallback(`Indexing ${fileName}`, 0.1 + (i / total) * 0.4); // up to 50%
+    }),
   );
 };
 

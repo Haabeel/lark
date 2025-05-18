@@ -9,7 +9,7 @@ import {
 } from "@/lib/events/channel";
 import { subscribeToNewDMs } from "@/lib/events/direct-messages";
 import {
-  MessagePayload,
+  type MessagePayload,
   subscribeToActiveMessageChanges,
   subscribeToMessages,
   unsubscribeFromMessageSubscription,
@@ -26,7 +26,6 @@ import {
   useSetIsLoadingMessages,
 } from "@/providers/ChannelProvider";
 import { api } from "@/trpc/react";
-import { type Message } from "@prisma/client";
 import { type RealtimeChannel as SupabaseRealtimeChannel } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
@@ -74,12 +73,11 @@ export const RealtimeChannelProvider = ({
 
   const utils = api.useContext();
 
-  const {
-    data: currentUserMemberRecords,
-    refetch: refetchCurrentUserMemberRecords,
-  } = api.project.getMyProjectMemberRecords.useQuery(undefined, {
-    enabled: !!userId,
-  });
+  const { data: currentUserMemberRecords } =
+    api.project.getMyProjectMemberRecords.useQuery(undefined, {
+      enabled: !!userId,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const currentUserProjectMemberIds =
     currentUserMemberRecords?.map((member) => member.id) ?? [];
 
@@ -102,7 +100,6 @@ export const RealtimeChannelProvider = ({
     ];
 
     // Get current state of refs
-    const currentActiveIdsSet = activeNotificationSubIdsRef.current; // Use the correct ref
     const currentSubscriptionObjectsArray =
       notificationChannelSubscriptionsRef.current;
 
@@ -260,6 +257,7 @@ export const RealtimeChannelProvider = ({
         );
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     userId,
     projectChannelIdsFromHook,
@@ -428,6 +426,7 @@ export const RealtimeChannelProvider = ({
       );
       activeMessageChangesSubRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeChannelId,
     setMessages,

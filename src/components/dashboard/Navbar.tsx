@@ -13,7 +13,6 @@ import {
   WaypointsIcon,
   PanelLeftOpen, // Icon for sidebar toggle
   PanelLeftClose, // Icon for sidebar toggle
-  Users2, // Icon for team members on mobile
 } from "lucide-react";
 import { type Session } from "@/lib/auth"; // Assuming Session is your Better Auth session type
 import { signOut } from "@/lib/auth-client"; // Your signOut function
@@ -40,7 +39,7 @@ import ThemeToggle from "../shared/ThemeToggle";
 import TeamMembers from "./TeamMembers"; // This component also needs to be responsive
 import InviteButton from "./InviteButton";
 import ArchiveButton from "./ArchiveButton";
-import { initials, cn } from "@/lib/utils";
+import { initials } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface Props {

@@ -1,43 +1,41 @@
 import { redirect } from "next/navigation";
+import { type Metadata } from "next"; // Import Metadata type
 
 interface PageProps {
-  params: {
-    projectId: string; // This will be populated by Next.js from the URL segment
-  };
-  // searchParams?: { [key: string]: string | string[] | undefined }; // If you needed query params
+  params: Promise<{ projectId: string }>; // params is also a Promise
+  searchParams: Promise<Record<string, string | string[] | undefined>>; // searchParams is a Promise
 }
 
 /**
- * This page component immediately redirects the user to the
- * analytics section of the specified project.
- * e.g., /project/abc-123/to-analytics -> /dashboard/abc-123/analytics
+ * This page component (if located at /dashboard/[projectId]/page.tsx)
+ * immediately redirects the user to the analytics section of the specified project.
  */
-export default async function ProjectAnalyticsRedirectPage({
-  params,
+export default async function ProjectRedirectPage({
+  // Renamed for clarity if this is its sole purpose
+  params: paramsPromise, // Receive the promise
 }: PageProps) {
+  const params = await paramsPromise; // Await the promise to get the actual params object
   const { projectId } = params;
 
   if (!projectId) {
-    // Fallback redirect if projectId is somehow missing, though Next.js routing should ensure it's there.
-    // You could redirect to a generic dashboard or an error page.
-    console.error("Project ID missing in ProjectAnalyticsRedirectPage params.");
-    redirect("/dashboard"); // Or an error page
+    console.error(
+      "Project ID missing in ProjectRedirectPage params after await.",
+    );
+    redirect("/dashboard");
+    return; // Explicit return after redirect, though redirect throws
   }
 
-  // Construct the target URL for the analytics page
   const targetAnalyticsUrl = `/dashboard/${projectId}/analytics`;
-
-  // Perform the redirect
   redirect(targetAnalyticsUrl);
 
-  // Note: redirect() throws a NEXT_REDIRECT error, so nothing below this line
-  // in this component will execute. You don't need to return null explicitly,
-  // though it's not harmful if you do.
-  // return null;
+  // This part of the component will not be reached due to redirect() throwing an error.
 }
 
-// Optional: Metadata for the page (though user won't see it due to redirect)
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({
+  params: paramsPromise,
+}: PageProps): Promise<Metadata> {
+  // Added Promise<Metadata>
+  const params = await paramsPromise; // Await here as well
   return {
     title: `Redirecting to Analytics for Project ${params.projectId}`,
   };

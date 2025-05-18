@@ -1,6 +1,6 @@
 "use client";
 
-import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 import { useDashboard } from "@/providers/DashboardProvider";
 import React from "react"; // React.useMemo is part of React
 import AppSidebar from "@/components/dashboard/sidebar/AppSidebar";
@@ -20,12 +20,8 @@ const SidebarContent = ({ children }: Props) => {
   const pathname = usePathname();
   const { open, toggleSidebar } = useSidebar();
   // This hook fetches all channels for the selected project
-  const {
-    channels: allProjectChannels,
-    isLoading: isProjectChannelsLoading,
-    isError: isProjectChannelsError,
-    refetch: refetchProjectChannels,
-  } = useProjectChannels();
+  const { channels: allProjectChannels, isLoading: isProjectChannelsLoading } =
+    useProjectChannels();
   const { channels: allUserDms } = useUserDms();
   // Session and project data are needed for the tRPC query's userId and potentially for AppSidebar
   const currentUserId = dashboard?.session?.user?.id; // Get userId before the early return
@@ -34,7 +30,6 @@ const SidebarContent = ({ children }: Props) => {
   const {
     data: userMemberChannelIdsData,
     isLoading: isLoadingUserMemberChannels,
-    isError: isUserMemberChannelsError,
   } = api.chat.getAllUserChannelIds.useQuery(
     { userId: currentUserId! },
     {
@@ -85,10 +80,6 @@ const SidebarContent = ({ children }: Props) => {
   const shouldShowPlaceholder =
     !pathname.startsWith("/create-project") &&
     (!projects || projects.length === 0 || !selectedProject);
-
-  // Determine the loading state for the channels list passed to AppSidebar
-  const isChannelListLoading =
-    isProjectChannelsLoading || isLoadingUserMemberChannels;
 
   return (
     <>

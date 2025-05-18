@@ -3,17 +3,13 @@ import { useDashboard } from "@/providers/DashboardProvider";
 import { api } from "@/trpc/react";
 import { useState } from "react";
 
-interface Channel {
-  id: string;
-  name: string;
-}
-
 const ChannelList = () => {
   const dashboard = useDashboard();
   const projectId = dashboard?.selectedProject;
   const { data: channels, isLoading } = api.chat.getChannels.useQuery({
     projectId: projectId ?? "",
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(
     null,
   );

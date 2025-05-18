@@ -12,7 +12,6 @@ import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 const EmailVerification = ({
-  isEmailVerified,
   email,
 }: {
   isEmailVerified: boolean;
@@ -21,6 +20,7 @@ const EmailVerification = ({
   const [otp, SetOtp] = useState("");
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [hasMounted, setHasMounted] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hasSent, setHasSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -99,6 +99,7 @@ const EmailVerification = ({
       );
       setSecondsLeft(remaining);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

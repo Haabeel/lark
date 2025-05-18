@@ -11,7 +11,6 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { type Column } from "../tasks/columns";
 import { api } from "@/trpc/react";
 import useRefetch from "@/hooks/useRefetch";
 import { toast } from "sonner";
@@ -45,6 +44,7 @@ export function DeleteMemberDialog({
     if (open !== internalOpen) {
       setInternalOpen(open);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   return (

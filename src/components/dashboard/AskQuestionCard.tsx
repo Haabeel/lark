@@ -10,7 +10,6 @@ import {
   DialogClose,
   DialogContent,
   DialogHeader,
-  DialogTrigger,
 } from "@/components/ui/dialog"; // Corrected path for DialogTrigger
 import { DialogTitle } from "@radix-ui/react-dialog"; // This is fine
 import Logo from "../shared/Logo";

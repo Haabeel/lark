@@ -1,23 +1,18 @@
 "use client";
 
-import useProject from "@/hooks/useProject";
-import useRefetch from "@/hooks/useRefetch";
-import { api } from "@/trpc/react";
-import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogTrigger,
+  DialogClose,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { DropdownMenuItem } from "../ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-import { ArchiveXIcon } from "lucide-react";
+import useProject from "@/hooks/useProject";
+import useRefetch from "@/hooks/useRefetch";
+import { api } from "@/trpc/react";
 
 type Props = {
   open: boolean;
@@ -25,12 +20,13 @@ type Props = {
   className?: string;
 };
 
-const ArchiveButton = ({ open, onOpenChange, className }: Props) => {
+const ArchiveButton = ({ open, onOpenChange }: Props) => {
   const archiveProject = api.project.archiveProject.useMutation();
   const { selectedProject, projects, setSelectedProject } = useProject();
   const refetch = useRefetch();
 
   const handleArchiveProject = async () => {
+    if (!selectedProject) return;
     await archiveProject.mutateAsync({ projectId: selectedProject });
     await refetch();
     setSelectedProject(projects?.[0]?.id ?? "");

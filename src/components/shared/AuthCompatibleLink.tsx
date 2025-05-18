@@ -1,6 +1,6 @@
 "use client";
 
-import NextLink, { type LinkProps as NextLinkProps } from "next/link";
+import NextLink from "next/link";
 import type { ReactNode, AnchorHTMLAttributes } from "react";
 import React from "react";
 

@@ -5,9 +5,7 @@ import {
   CircleDashedIcon,
   CircleDotDashedIcon,
   CircleIcon,
-  PlusIcon,
 } from "lucide-react";
-import { Button } from "../ui/button";
 import CreateTasksDialog from "./create-tasks-dialog";
 
 interface KanbanColumnHeaderProps {

@@ -2,7 +2,6 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Use TabsList and TabsTrigger for shadcn structure
-import { Button } from "@/components/ui/button"; // Not needed for triggers if using TabsTrigger
 import { cn } from "@/lib/utils";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {

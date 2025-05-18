@@ -13,7 +13,7 @@ import {
 
 import EditTaskDialog from "./EditTaskDialog";
 import { DeleteTaskDialog } from "./DeleteTaskDialog";
-import { User } from "@/providers/DashboardProvider";
+import { type User } from "@/providers/DashboardProvider";
 import {
   Tooltip,
   TooltipContent,
@@ -39,14 +39,7 @@ const statusColorMap: Record<Column["status"], string> = {
   DONE: "border-l-green-400",
 };
 
-const EventCard = ({
-  title,
-  status,
-  id,
-  user,
-  assignee,
-  task,
-}: EventCardProps) => {
+const EventCard = ({ title, status, user, assignee, task }: EventCardProps) => {
   const [viewDialogOpen, setViewDialogOpen] = React.useState(false);
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);

@@ -3,14 +3,11 @@ import "@/styles/globals.css";
 import { type Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 
-import { TRPCReactProvider } from "@/trpc/react";
+import { GlobalProgressToast } from "@/components/shared/GlobalToaster";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { TRPCReactProvider } from "@/trpc/react";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { RealtimeChannelProvider } from "@/providers/RealTimeProvider";
-import { ProgressProvider } from "@/providers/ProgressProvider";
-import { GlobalProgressToast } from "@/components/shared/GlobalToaster";
-import { ChannelProvider } from "@/providers/ChannelProvider";
 const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "700"],

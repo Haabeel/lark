@@ -1,10 +1,5 @@
 import { auth } from "@/lib/auth";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-  secureProcedure,
-} from "../trpc";
+import { createTRPCRouter, publicProcedure, secureProcedure } from "../trpc";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 
@@ -24,7 +19,7 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const { transporter } = await import("@/lib/node-mailer");
       try {
-        const mail = await transporter.sendMail({
+        await transporter.sendMail({
           from: `Lark <${process.env.GMAIL_USER}>`,
           to: input.email,
           subject: "Change Email Verification",
@@ -49,7 +44,7 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const { transporter } = await import("@/lib/node-mailer");
       try {
-        const mail = await transporter.sendMail({
+        await transporter.sendMail({
           from: `Lark <${process.env.GMAIL_USER}>`,
           to: input.email,
           subject: "Reset Password",

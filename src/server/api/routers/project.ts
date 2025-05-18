@@ -895,7 +895,7 @@ export const projectRouter = createTRPCRouter({
         })
         .optional(),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx }) => {
       const currentUserId = ctx.user.user.id; // From your session
 
       const tasks = await ctx.db.task.findMany({

@@ -3,7 +3,7 @@
 import useProject from "@/hooks/useProject";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
-import { ExternalLink, GitCommitHorizontal, UserCircle } from "lucide-react"; // Added icons
+import { ExternalLink, UserCircle } from "lucide-react"; // Added icons
 import Image from "next/image"; // Use next/image
 import Link from "next/link";
 import React from "react";
@@ -12,7 +12,6 @@ import { FilteredList } from "../shared/FilteredList"; // Assuming this componen
 import { type inferRouterOutputs } from "@trpc/server";
 import { type AppRouter } from "@/server/api/root";
 import NotFoundImage from "../shared/NotFoundImage";
-import { Badge } from "@/components/ui/badge"; // For change count
 import { format, formatDistanceToNowStrict } from "date-fns"; // For better date formatting
 import {
   Tooltip,

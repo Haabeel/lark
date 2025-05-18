@@ -51,6 +51,7 @@ export function DeleteTaskDialog({
     if (open !== internalOpen) {
       setInternalOpen(open);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   return (

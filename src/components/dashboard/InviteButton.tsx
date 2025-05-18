@@ -13,7 +13,7 @@ type Props = {
   className?: string;
 };
 
-const InviteButton = ({ open, onOpenChange, className }: Props) => {
+const InviteButton = ({ open, onOpenChange }: Props) => {
   const { selectedProject } = useProject();
   const [inviteLink, setInviteLink] = useState("");
   const [internalOpen, setInternalOpen] = React.useState(open);
@@ -23,6 +23,7 @@ const InviteButton = ({ open, onOpenChange, className }: Props) => {
     if (open !== internalOpen) {
       setInternalOpen(open);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const handleChange = (state: boolean) => {

@@ -1,7 +1,6 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { authRouter } from "./routers/auth";
 import { projectRouter } from "./routers/project";
-import { imageRouter } from "./routers/image";
 import { userRouter } from "./routers/user";
 import { chatRouter } from "./routers/chat";
 /**
@@ -13,7 +12,6 @@ export const appRouter = createTRPCRouter({
   auth: authRouter,
   user: userRouter,
   project: projectRouter,
-  image: imageRouter,
   chat: chatRouter,
 });
 

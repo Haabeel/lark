@@ -19,7 +19,7 @@ export const auth = betterAuth({
     },
     changeEmail: {
       enabled: true,
-      sendChangeEmailVerification: async ({ user, token, url, newEmail }) => {
+      sendChangeEmailVerification: async ({ url, newEmail }) => {
         const { api } = await import("@/trpc/server");
         console.log("Sending email verification for change email");
         await api.auth
@@ -30,7 +30,7 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    sendResetPassword: async ({ user, token, url }) => {
+    sendResetPassword: async ({ user, url }) => {
       const { api } = await import("@/trpc/server");
       await api.auth
         .sendFogetPasswordEmail({ email: user.email, url })

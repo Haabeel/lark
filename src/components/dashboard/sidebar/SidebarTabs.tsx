@@ -19,7 +19,6 @@ const SidebarTabs = ({
   selectedProject,
   open,
   channels,
-  dms,
   activeTab,
   setActiveTab,
 }: Props) => {

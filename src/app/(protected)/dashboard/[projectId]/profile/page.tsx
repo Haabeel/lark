@@ -13,13 +13,12 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
-import { Loader2, Save, UploadCloud } from "lucide-react";
+import { Loader2, UploadCloud } from "lucide-react";
 import { initials } from "@/lib/utils";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -48,7 +47,6 @@ export default function ProfilePage() {
     data: userProfile,
     isLoading: isLoadingProfile,
     isError,
-    error,
   } = api.user.getCurrentUserProfile.useQuery(undefined, {
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -86,13 +84,8 @@ export default function ProfilePage() {
     register,
     handleSubmit,
     reset,
-    setValue,
     getValues, // To get current form values
-    formState: {
-      errors,
-      isSubmitting: isSubmittingTextForm,
-      isDirty: isTextFormDirty,
-    },
+    formState: { errors, isDirty: isTextFormDirty },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
@@ -120,7 +113,7 @@ export default function ProfilePage() {
   // Handler for submitting text changes (name, firstName, lastName)
   const onProfileTextSubmit: SubmitHandler<ProfileFormValues> = (data) => {
     // We only want to submit text fields here. Image is handled separately or together.
-    const { email, image, ...textDataToSubmit } = data;
+    const { ...textDataToSubmit } = data;
     updateProfileMutation.mutate(textDataToSubmit);
   };
 

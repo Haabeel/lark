@@ -5,10 +5,6 @@ import { Button } from "../ui/button";
 import { signIn } from "@/lib/auth-client";
 import { toast } from "sonner";
 
-interface Props {
-  type: "sign in" | "sign up";
-}
-
 interface SocialProvider {
   provider: "google" | "microsoft" | "github";
   Icon: React.ComponentType;
@@ -29,7 +25,7 @@ const socialProviders: SocialProvider[] = [
   },
 ];
 
-const SocialProviders = ({ type }: Props) => {
+const SocialProviders = () => {
   const handleSocialSignIn = async (
     provider: "google" | "microsoft" | "github",
   ) => {

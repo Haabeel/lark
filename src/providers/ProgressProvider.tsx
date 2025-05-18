@@ -1,11 +1,9 @@
 "use client";
 
-import useRefetch from "@/hooks/useRefetch";
 import { supabase } from "@/lib/supabaseClient";
 import { type RealtimePostgresInsertPayload } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { toast } from "sonner";
 
 type ProgressUpdate = {
   id: string;
@@ -28,7 +26,6 @@ export const useProgress = () => useContext(ProgressContext);
 export const ProgressProvider = ({ children }: { children: ReactNode }) => {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [progress, setProgress] = useState<ProgressUpdate | null>(null);
-  const refetch = useRefetch();
 
   // supabase subscription
   useEffect(() => {

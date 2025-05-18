@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signUp, signIn } from "@/lib/auth-client";
+import { signUp } from "@/lib/auth-client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -139,7 +139,7 @@ const SignUp = () => {
               </div>
 
               <div className={`flex w-full justify-between gap-3`}>
-                <SocialProviders type="sign up" />
+                <SocialProviders />
               </div>
             </form>
           </Form>
