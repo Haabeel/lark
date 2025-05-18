@@ -23,7 +23,6 @@
   "dependencies": {
     "@ai-sdk/google": "^1.2.12",
     "@better-fetch/fetch": "^1.1.12",
-    "@daveyplate/better-auth-ui": "^1.6.4",
     "@edgestore/react": "^0.3.3",
     "@edgestore/server": "^0.3.3",
     "@emotion/react": "^11.14.0",
