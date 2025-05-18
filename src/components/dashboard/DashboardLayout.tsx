@@ -1,6 +1,6 @@
 "use client";
 
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { useDashboard } from "@/providers/DashboardProvider";
 import React from "react"; // React.useMemo is part of React
 import AppSidebar from "@/components/dashboard/sidebar/AppSidebar";
@@ -18,7 +18,7 @@ type Props = {
 const SidebarContent = ({ children }: Props) => {
   const dashboard = useDashboard();
   const pathname = usePathname();
-
+  const { open, toggleSidebar } = useSidebar();
   // This hook fetches all channels for the selected project
   const {
     channels: allProjectChannels,
@@ -91,7 +91,7 @@ const SidebarContent = ({ children }: Props) => {
     isProjectChannelsLoading || isLoadingUserMemberChannels;
 
   return (
-    <SidebarProvider className="overflow-hidden dark:bg-foundation-blue-900 dark:text-neutral-100">
+    <>
       <AppSidebar
         projects={projects}
         selectedProject={selectedProject}
@@ -99,15 +99,21 @@ const SidebarContent = ({ children }: Props) => {
         channels={filteredChannels}
         dms={allUserDms}
       />
-      <main className="m-2 flex h-full w-full flex-col gap-2">
-        <Navbar name={name} session={session} project={project} />
+      <main className="flex h-full w-full flex-col gap-2">
+        <Navbar
+          name={name}
+          session={session}
+          project={project}
+          isSidebarOpen={open}
+          toggleSidebar={toggleSidebar}
+        />
         <div
           className={`h-[calc(100vh-5rem)] overflow-y-auto rounded-md border border-sidebar-border bg-sidebar ${paddingClass} shadow dark:border-none dark:bg-foundation-blue-700`}
         >
           {shouldShowPlaceholder ? <ProjectPlaceholder /> : children}
         </div>
       </main>
-    </SidebarProvider>
+    </>
   );
 };
 

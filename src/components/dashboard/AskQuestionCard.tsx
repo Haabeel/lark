@@ -1,12 +1,18 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Corrected path
+import { Textarea } from "@/components/ui/textarea"; // Corrected path
+import { Button } from "@/components/ui/button"; // Corrected path
 import useProject from "@/hooks/useProject";
-import { Dialog, DialogClose, DialogContent, DialogHeader } from "../ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog"; // Corrected path for DialogTrigger
+import { DialogTitle } from "@radix-ui/react-dialog"; // This is fine
 import Logo from "../shared/Logo";
 import { readStreamableValue } from "ai/rsc";
 import MDEditor from "@uiw/react-md-editor";
@@ -14,42 +20,62 @@ import CodeReferences from "./CodeReferences";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import useRefetch from "@/hooks/useRefetch";
-import { askQuestion } from "@/app/(protected)/dashboard/[projectId]/commits/actions";
+import { askQuestion } from "@/app/(protected)/dashboard/[projectId]/commits/actions"; // Assuming this path is correct
+import { Loader2, Send, Save, X } from "lucide-react"; // Added icons
 
 const AskQuestionCard = () => {
   const { project } = useProject();
   const [question, setQuestion] = React.useState<string>("");
   const [hasSaved, setHasSaved] = React.useState(false);
   const [open, setOpen] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isAsking, setIsAsking] = React.useState(false); // Renamed from isLoading for clarity
+  const [isSaving, setIsSaving] = React.useState(false); // Specific loading for save
   const [filesReferences, setFilesReferences] = React.useState<
     { fileName: string; sourceCode: string; summary: string }[]
   >([]);
   const [answer, setAnswer] = React.useState("");
-  const saveAnswer = api.project.saveAnswer.useMutation();
+  const saveAnswerMutation = api.project.saveAnswer.useMutation(); // Renamed for clarity
   const refetch = useRefetch();
 
   const onSubmit = async (e: React.FormEvent) => {
     setAnswer("");
     setFilesReferences([]);
-    if (!project?.id || question === "") return;
-    e.preventDefault();
-    setIsLoading(true);
-    const { output, filesReferences } = await askQuestion(question, project.id);
-    setFilesReferences(filesReferences);
-    setOpen(true);
-    for await (const delta of readStreamableValue(output)) {
-      if (delta) {
-        setAnswer((ans) => ans + delta);
-      }
+    setHasSaved(false); // Reset save state for new question
+    if (!project?.id || question.trim() === "") {
+      toast.error("Please enter a question.");
+      return;
     }
-    setIsLoading(false);
+    e.preventDefault();
+    setIsAsking(true);
+    try {
+      const { output, filesReferences: refs } = await askQuestion(
+        question,
+        project.id,
+      );
+      setFilesReferences(refs);
+      setOpen(true); // Open dialog after getting references
+      let currentAnswer = "";
+      for await (const delta of readStreamableValue(output)) {
+        if (delta) {
+          currentAnswer += delta;
+          setAnswer(currentAnswer);
+        }
+      }
+    } catch (error) {
+      console.error("Error asking question:", error);
+      toast.error("Failed to get an answer. Please try again.");
+    } finally {
+      setIsAsking(false);
+    }
   };
 
   const handleSaveAnswer = async () => {
-    if (!project?.id || question === "") return;
-    setIsLoading(true);
-    saveAnswer.mutate(
+    if (!project?.id || question.trim() === "" || answer.trim() === "") {
+      toast.error("Cannot save an empty question or answer.");
+      return;
+    }
+    setIsSaving(true);
+    saveAnswerMutation.mutate(
       {
         projectId: project.id,
         answer: answer,
@@ -59,70 +85,106 @@ const AskQuestionCard = () => {
       {
         onSuccess: () => {
           toast.success("Answer saved successfully!");
-          setIsLoading(false);
           setHasSaved(true);
         },
-        onError: () => {
-          toast.error("Failed to save answer!");
-          setIsLoading(false);
+        onError: (err) => {
+          toast.error(err.message || "Failed to save answer!");
+        },
+        onSettled: () => {
+          setIsSaving(false);
+          void refetch(); // Refetch relevant data if needed
         },
       },
     );
-    await refetch();
   };
 
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="p-auto max-h-[90vh] overflow-y-auto overflow-x-hidden border-white bg-neutral-300 dark:border-none dark:bg-foundation-blue-800 sm:max-w-[80vw]">
-          <DialogHeader>
-            <div className="flex max-w-[75vw] items-center justify-between pr-2">
-              <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
-                <Logo height={40} width={40} />
-                <span>{question}</span>
+        <DialogContent className="flex max-h-[90vh] w-[95vw] flex-col rounded-md border-white bg-neutral-300 p-0 dark:border-none dark:bg-foundation-blue-800 sm:max-w-[90vw] md:max-w-[80vw] lg:max-w-[70vw] xl:max-w-[60vw]">
+          <DialogHeader className="sticky top-0 z-10 rounded-md border-b border-border bg-inherit p-4">
+            {" "}
+            {/* Make header sticky */}
+            <div className="flex items-center justify-between gap-2">
+              <DialogTitle className="flex items-center gap-2 truncate text-base font-semibold sm:text-lg">
+                <Logo height={30} width={30} className="hidden sm:block" />{" "}
+                {/* Hide logo on xs */}
+                <span className="truncate" title={question}>
+                  {question || "AI Answer"}
+                </span>
               </DialogTitle>
-              <Button
-                className="bg-blue-500 text-neutral-100 hover:bg-blue-800 dark:bg-foundation-blue-900 dark:hover:bg-foundation-blue-600"
-                disabled={saveAnswer.isPending || hasSaved}
-                onClick={async () => {
-                  await handleSaveAnswer();
-                }}
-              >
-                Save Answer
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="default" // Or your primary style
+                  disabled={isSaving || hasSaved || answer.trim() === ""}
+                  onClick={handleSaveAnswer}
+                >
+                  {isSaving ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  {hasSaved ? "Saved" : "Save"}
+                </Button>
+                <DialogClose asChild>
+                  <Button size="icon" variant="ghost" aria-label="Close dialog">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </DialogClose>
+              </div>
             </div>
           </DialogHeader>
-          <MDEditor.Markdown
-            source={answer}
-            className="!h-full max-w-[75vw] overflow-auto rounded-md p-3"
-          />
-          <CodeReferences filesReferences={filesReferences} />
-          <div className="h-4"></div>
-          <Button type="button" onClick={() => setOpen(false)}>
-            Close
-          </Button>
+
+          <div className="flex-grow space-y-4 overflow-y-auto rounded-md p-4">
+            {" "}
+            {/* Scrollable content area */}
+            <div
+              data-color-mode={
+                typeof window !== "undefined" &&
+                document.documentElement.classList.contains("dark")
+                  ? "dark"
+                  : "light"
+              }
+            >
+              <MDEditor.Markdown
+                source={answer}
+                className="!bg-transparent p-1 text-sm sm:text-base" // Adjusted padding and text size
+                // Ensure MDEditor styles adapt to dark/light mode, sometimes needs explicit props or wrapper
+              />
+            </div>
+            {filesReferences && filesReferences.length > 0 && (
+              <CodeReferences filesReferences={filesReferences} />
+            )}
+          </div>
         </DialogContent>
       </Dialog>
-      <Card className="relative col-span-3 border-sidebar bg-sidebar text-neutral-100 dark:border-none dark:bg-foundation-blue-900">
+
+      <Card className="relative border-sidebar bg-sidebar text-neutral-100 dark:border-none dark:bg-foundation-blue-900">
         <CardHeader>
-          <CardTitle className="text-neutral-800 dark:text-neutral-100">
-            Ask a question
+          <CardTitle className="text-lg text-neutral-800 dark:text-neutral-100 sm:text-xl">
+            Ask a question about your codebase
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onSubmit} className="space-y-4">
             <Textarea
-              placeholder="Type your question here..."
-              className="resize-x-none placeholder-text-foundation-blue-900 max-h-44 border-sidebar text-neutral-800 focus:border-transparent dark:border-brand-blue-700 dark:text-neutral-100 dark:placeholder:text-neutral-300"
+              placeholder="Type your question here... e.g., 'Explain the authentication flow' or 'Where is the user profile updated?'"
+              className="placeholder-text-foundation-blue-900 max-h-40 min-h-[80px] resize-none border-sidebar text-neutral-800 focus:border-transparent dark:border-brand-blue-700 dark:text-neutral-100 dark:placeholder:text-neutral-300 sm:max-h-44"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
+              rows={3} // Start with a decent number of rows
             />
-            <div className="h-4"></div>
             <Button
               type="submit"
-              disabled={isLoading}
-              className="bg-brand-blue-500 hover:bg-brand-blue-600 dark:text-neutral-100"
+              disabled={isAsking || question.trim() === ""}
+              className="w-full bg-brand-blue-500 hover:bg-brand-blue-600 dark:text-neutral-100 sm:w-auto" // Full width on mobile
             >
+              {isAsking ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="mr-2 h-4 w-4" />
+              )}
               Ask Lark!
             </Button>
           </form>
