@@ -160,7 +160,7 @@ const EmailVerification = ({
       <Button
         type="button"
         onClick={onSendOTPSubmit}
-        className="w-full bg-brand-blue-800"
+        className="w-full bg-brand-blue-800 text-black dark:bg-brand-blue-500 dark:text-neutral-100"
         disabled={
           !email || email == "" || !hasMounted || secondsLeft > 0 || loading
         }

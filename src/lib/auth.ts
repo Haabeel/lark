@@ -7,6 +7,7 @@ export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
+  trustedOrigins: [process.env.BETTER_AUTH_URL!],
   user: {
     deleteUser: {
       enabled: true,

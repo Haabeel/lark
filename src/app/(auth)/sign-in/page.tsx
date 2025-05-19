@@ -17,9 +17,11 @@ import Logo from "@/components/shared/Logo";
 import Link from "next/link";
 import { LuMoveRight } from "react-icons/lu";
 import { useToggle } from "@/hooks/useToggle";
+import { useRouter } from "next/navigation";
 
 type SignInForm = z.infer<typeof signInSchema>;
 const SignIn = () => {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useToggle(false);
   const form = useForm<SignInForm>({
@@ -38,6 +40,7 @@ const SignIn = () => {
         email: data.email,
         password: data.password,
       });
+      router.push("/dashboard");
       if (response.error) {
         toast.error(response.error.message);
       } else {

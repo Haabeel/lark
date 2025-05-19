@@ -15,9 +15,9 @@ type ProgressUpdate = {
 
 type ProgressContextType = {
   projectId: string | null;
-  setProjectId: (id: string) => void;
+  setProjectId: (id: string | null) => void;
   progress: ProgressUpdate | null;
-  setProgress: (data: ProgressUpdate) => void;
+  setProgress: (data: ProgressUpdate | null) => void;
 };
 
 const ProgressContext = createContext<ProgressContextType | null>(null);

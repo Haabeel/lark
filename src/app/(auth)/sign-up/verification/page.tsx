@@ -17,15 +17,15 @@ const VerifyOTP = async () => {
           </Link>
         </div>
         <div className="absolute left-1/2 top-1/2 flex flex-1 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg">
-          <h1 className="text-center text-xl font-semibold">
+          <h1 className="text-center text-xl font-semibold text-black dark:text-neutral-100">
             Verify your email address
           </h1>
-          <p className="mb-10 text-center text-neutral-500 sm:mb-8">
+          <p className="mb-10 text-center text-neutral-500 dark:text-neutral-300 sm:mb-8">
             To start using Lark, please verify your email by entering the
             confirmation code we just sent you.
           </p>
           {session ? (
-            <div className="flex flex-col items-center justify-center gap-3">
+            <div className="flex flex-col items-center justify-center gap-3 text-black dark:text-neutral-100">
               <p>{session.user.email}</p>
               <EmailVerification
                 email={session.user.email}

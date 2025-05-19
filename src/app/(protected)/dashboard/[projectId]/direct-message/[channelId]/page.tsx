@@ -165,16 +165,6 @@ const DirectMessagePage = () => {
       <div className="flex flex-col">
         <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="mr-1 md:hidden"
-              onClick={() => router.back()}
-            >
-              {" "}
-              {/* Back button for mobile */}
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
             {otherUser ? (
               <>
                 <Avatar className="h-8 w-8">

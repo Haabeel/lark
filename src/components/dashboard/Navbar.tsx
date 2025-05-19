@@ -65,7 +65,6 @@ const Navbar = ({
   const handleSignOut = async () => {
     try {
       await signOut();
-      await refetch(); // Assuming this updates global state or refetches necessary data
       router.push("/sign-in"); // Redirect to sign-in after logout
       toast.success("Signed out successfully.");
     } catch (error) {
@@ -80,7 +79,7 @@ const Navbar = ({
 
   return (
     <>
-      <header className="flex items-center gap-2 rounded-md border border-b-2 border-sidebar-border bg-sidebar p-2 pl-2 pr-2 shadow dark:border-none dark:bg-foundation-blue-700 dark:text-neutral-100 sm:px-4 md:h-16 md:px-6">
+      <header className="flex items-center gap-2 rounded-md border border-b-2 border-sidebar-border bg-sidebar p-2 pl-2 pr-2 shadow dark:border-none dark:bg-foundation-blue-700 dark:text-neutral-100 sm:px-4 md:h-14 md:px-6">
         {/* Sidebar Toggle - visible on all screens, but more prominent on mobile */}
         {toggleSidebar && (
           <Button

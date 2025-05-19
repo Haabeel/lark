@@ -27,7 +27,6 @@ import {
 } from "@/providers/ChannelProvider";
 import { api } from "@/trpc/react";
 import { type RealtimeChannel as SupabaseRealtimeChannel } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -36,7 +35,6 @@ export const RealtimeChannelProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const router = useRouter();
   const { data: session } = api.auth.getSession.useQuery();
   const userId = session?.user?.id;
 
@@ -216,18 +214,20 @@ export const RealtimeChannelProvider = ({
               toast.info(title, {
                 description: body,
                 duration: 8000,
-                action: {
-                  label: "View",
-                  onClick: () => {
-                    console.log("pushing");
-                    if (dmChannel)
-                      router.push(`/dashboard/direct-message/${channelId}`);
-                    else if (projectChannel)
-                      router.push(
-                        `/dashboard/${projectChannel.channel.projectId}/channel/${channelId}`,
-                      );
-                  },
-                },
+                // action: {
+                //   label: "View",
+                //   onClick: () => {
+                //     console.log("pushing");
+                //     if (dmChannel)
+                //       router.push(
+                //         `/dashboard/${projectChannel?.channel.projectId}/direct-message/${channelId}`,
+                //       );
+                //     else if (projectChannel)
+                //       router.push(
+                //         `/dashboard/${projectChannel.channel.projectId}/channel/${channelId}`,
+                //       );
+                //   },
+                // },
               });
             }
           },

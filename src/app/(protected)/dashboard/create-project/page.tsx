@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -38,6 +38,9 @@ export default function CreateProjectForm() {
   const progress = useProgress();
   const setProjectId = progress?.setProjectId;
   const progressData = progress?.progress;
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
+    null,
+  );
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,8 +54,7 @@ export default function CreateProjectForm() {
   const createMutation = api.project.createProject.useMutation({
     onSuccess: (project) => {
       if (setProjectId) setProjectId(project.id);
-      if (progressData?.progress && progressData.progress >= 100)
-        router.push(`/dashboard/${project.id}`);
+      setSelectedProjectId(project.id);
     },
     onError: () => {
       toast.error("Failed to create project. Please try again.");
@@ -68,7 +70,21 @@ export default function CreateProjectForm() {
       setLoading(false);
     }
   };
+  console.log("progressData", progressData);
 
+  useEffect(() => {
+    if (!selectedProjectId) return;
+    if (progressData?.progress && progressData.progress >= 100)
+      if (setProjectId) setProjectId(null);
+    progress?.setProgress(null);
+    router.push(`/dashboard/${selectedProjectId}`);
+  }, [
+    progress,
+    progressData?.progress,
+    router,
+    selectedProjectId,
+    setProjectId,
+  ]);
   return (
     <div className="flex h-full min-h-screen w-full items-center justify-center gap-10 px-36">
       <div className="w-full max-w-lg">
@@ -102,7 +118,11 @@ export default function CreateProjectForm() {
                 <FormItem>
                   <FormLabel>Description (optional)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Project description..." {...field} />
+                    <Textarea
+                      placeholder="Project description..."
+                      {...field}
+                      className="max-h-72"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,20 +160,21 @@ export default function CreateProjectForm() {
               )}
             />
 
-            {loading && (
-              <div className="space-y-2">
-                <Progress
-                  value={progressData ? progressData?.progress / 100 : 0}
-                  className="h-2"
-                />
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                </div>
+            {progressData?.step !== "Done" && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                {progressData?.step !== "Pausing for rate limit"
+                  ? progressData?.step
+                  : "Processing...."}
               </div>
             )}
-
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading ? "Creating Project..." : "Create Project"}
+            <Button
+              type="submit"
+              disabled={progressData?.step !== "Done"}
+              className="w-full"
+            >
+              {progressData?.step !== "Done"
+                ? "Creating Project..."
+                : "Create Project"}
             </Button>
           </form>
         </Form>
