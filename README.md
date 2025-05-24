@@ -25,13 +25,9 @@
 -   [Running the Application](#running-the-application)
     -   [Development Mode](#development-mode)
     -   [Production Build](#production-build)
--   [Key AI Integrations](#key-ai-integrations)
--   [Security Considerations](#security-considerations)
--   [Known Limitations](#known-limitations)
--   [Future Work](#future-work)
 -   [Contributing](#contributing)
 -   [License](#license)
--   [Acknowledgements](#acknowledgements)
+
 
 ## Overview
 
